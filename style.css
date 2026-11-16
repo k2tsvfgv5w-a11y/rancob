@@ -29,7 +29,7 @@ body {
 header { padding: 28px 0 8px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 700; font-size: 20px; }
 .logo { width: 34px; height: 34px; border-radius: 10px; background: var(--primary); display: grid; place-items: center; }
-.logo svg { width: 20px; height: 20px; }
+.logo svg { width: 20px; height: 22px; }
 nav { display: flex; gap: 16px; flex-wrap: wrap; font-size: 15px; }
 nav a { color: var(--muted); text-decoration: none; }
 nav a:hover, nav a[aria-current] { color: var(--primary); }
