@@ -1,0 +1,65 @@
+{
+  "catatan": "Dibuat oleh tools/sync-paket.mjs. Jangan diedit manual.",
+  "sumber": {
+    "aplikasi": "1ee3068"
+  },
+  "gratis": {
+    "percobaanAktif": 1
+  },
+  "pro": {
+    "percobaanAktif": "tak terbatas",
+    "produk": {
+      "semester": "pro_semester",
+      "year": "pro_year"
+    },
+    "harga": "dari Google Play (tidak ditulis di aplikasi maupun situs)",
+    "ujiCobaPekan": 2,
+    "tenggangOfflineHari": 14,
+    "tenggangKolaboratorHari": 90,
+    "maksAnggotaPerPercobaan": 20
+  },
+  "teks": {
+    "id": {
+      "planFree": "Gratis",
+      "proTitle": "Rancob Pro",
+      "proSubtitle": "Untuk peneliti dengan banyak percobaan dan tim lapangan.",
+      "proRowActive": "Percobaan aktif",
+      "proRowCore": "Analisis, jadwal, kegiatan, foto, ekspor",
+      "proRowSync": "Sinkron multi-device · segera",
+      "proRowCollab": "Kolaborator · segera",
+      "unlimited": "Tak terbatas",
+      "perSemester": "Per semester",
+      "semesterLength": "6 bulan",
+      "perYear": "Per tahun",
+      "yearLength": "12 bulan · lebih hemat",
+      "priceFromStore": "Harga dari Google Play",
+      "dataNeverLocked": "Data Anda tidak pernah dikunci. Jika langganan berakhir, semua percobaan tetap bisa dibuka, dianalisis, dan diekspor.",
+      "freeLimitTitle": "Paket gratis: 1 percobaan aktif",
+      "freeLimitBody": "Arsipkan percobaan yang sudah selesai untuk membuat yang baru. Percobaan arsip tetap bisa dibuka, dianalisis, dan diekspor.",
+      "collabProRequiredBody": "Hanya paket Pro yang bisa mengundang kolaborator. Orang yang Anda undang ikut gratis dan tidak pernah dikenakan biaya.",
+      "subscriptionTerms": "Langganan diperpanjang otomatis dengan harga yang tertera sampai dibatalkan. Batalkan kapan saja di Google Play, paling lambat 24 jam sebelum periode berakhir.",
+      "trialTerms": "Uji coba gratis hanya untuk pelanggan baru. Jika tidak dibatalkan sebelum uji coba berakhir, langganan berbayar dimulai otomatis."
+    },
+    "en": {
+      "planFree": "Free",
+      "proTitle": "Rancob Pro",
+      "proSubtitle": "For researchers running several trials and field teams.",
+      "proRowActive": "Active experiments",
+      "proRowCore": "Analysis, schedules, activities, photos, export",
+      "proRowSync": "Multi-device sync · soon",
+      "proRowCollab": "Collaborators · soon",
+      "unlimited": "Unlimited",
+      "perSemester": "Per semester",
+      "semesterLength": "6 months",
+      "perYear": "Per year",
+      "yearLength": "12 months · best value",
+      "priceFromStore": "Price from Google Play",
+      "dataNeverLocked": "Your data is never locked. If the subscription ends, every experiment can still be opened, analyzed and exported.",
+      "freeLimitTitle": "Free plan: 1 active experiment",
+      "freeLimitBody": "Archive a finished experiment to start a new one. Archived experiments can still be opened, analyzed and exported.",
+      "collabProRequiredBody": "Only the Pro plan can invite collaborators. People you invite join for free and are never charged.",
+      "subscriptionTerms": "The subscription renews automatically at the price shown until you cancel. Cancel any time in Google Play, at least 24 hours before the period ends.",
+      "trialTerms": "The free trial is for new subscribers only. Unless you cancel before it ends, the paid subscription starts automatically."
+    }
+  }
+}

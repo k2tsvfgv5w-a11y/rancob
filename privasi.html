@@ -4,84 +4,154 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kebijakan Privasi – Rancob</title>
+  <meta name="description" content="Kebijakan privasi aplikasi Rancob: data yang disimpan di HP, data yang disimpan di cloud saat memakai akun, sinkron, foto, kolaborasi, dan langganan Pro.">
   <link rel="icon" href="favicon.png">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <a class="brand" href="./"><span class="logo"><svg viewBox="93 80 320 352"><rect x="126.5" y="93.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="193.5" y="93.0" width="58" height="58" rx="12" fill="#BFE3C8"/><rect x="260.5" y="93.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="126.5" y="160.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="327.5" y="160.0" width="58" height="58" rx="12" fill="#F0B429"/><rect x="126.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="193.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="260.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="126.5" y="294.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="260.5" y="294.0" width="58" height="58" rx="12" fill="#BFE3C8"/><rect x="126.5" y="361.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="327.5" y="361.0" width="58" height="58" rx="12" fill="#FFFFFF"/></svg></span>Rancob</a>
-      <nav><a href="privasi.html" aria-current="page">Privasi</a><a href="syarat.html">Syarat</a><a href="hapus-data.html">Hapus data</a></nav>
-    </header>
-    <main>
-      <h1>Kebijakan Privasi</h1>
-      <p class="meta">Berlaku sejak 15 November 2026 · <a href="#english">English version</a></p>
+  <a class="skip" href="#isi">Langsung ke isi</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="./"><span class="logo"><svg viewBox="93 80 320 352" aria-hidden="true"><rect x="126.5" y="93.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="193.5" y="93.0" width="58" height="58" rx="12" fill="#BFE3C8"/><rect x="260.5" y="93.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="126.5" y="160.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="327.5" y="160.0" width="58" height="58" rx="12" fill="#F0B429"/><rect x="126.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="193.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="260.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="126.5" y="294.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="260.5" y="294.0" width="58" height="58" rx="12" fill="#BFE3C8"/><rect x="126.5" y="361.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="327.5" y="361.0" width="58" height="58" rx="12" fill="#FFFFFF"/></svg></span>Rancob</a>
+      <nav class="site-nav" aria-label="Menu utama"><a href="./">Beranda</a><a href="./#fitur">Fitur</a><a href="paket.html">Paket</a><a href="faq.html">FAQ</a><a href="kontak.html">Kontak</a><a href="en.html" lang="en" hreflang="en">English</a></nav>
+    </div>
+  </header>
+  <main id="isi" class="wrap narrow">
+    <h1>Kebijakan Privasi</h1>
+    <p class="meta">Berlaku sejak 22 November 2026 · menggantikan versi 15 November 2026 · <a href="#english">English version</a></p>
 
-      <p>Rancob adalah aplikasi untuk merancang dan mencatat percobaan lapangan pertanian, dikembangkan oleh Nazri Hasanulfuad ("kami"). Kebijakan ini menjelaskan data apa yang diproses aplikasi, di mana data itu disimpan, dan hak Anda.</p>
+    <p>Rancob adalah aplikasi untuk merancang, mencatat, dan menganalisis percobaan lapangan pertanian, dikembangkan oleh Nazri Hasanulfuad ("kami"). Kebijakan ini menjelaskan data apa yang diproses aplikasi, di mana data itu disimpan, siapa yang memprosesnya, dan hak Anda.</p>
 
-      <div class="card"><strong>Ringkasnya:</strong> data percobaan dan foto Anda tersimpan di HP Anda sendiri. Kami tidak menerimanya, tidak menjualnya, dan aplikasi tidak memuat iklan atau pelacak.</div>
+    <div class="card soft"><strong>Ringkasnya:</strong> tanpa akun, data percobaan dan foto hanya tersimpan di HP Anda. Akun bersifat opsional dan hanya dipakai untuk sinkron antarperangkat dan kolaborasi; jika Anda masuk dan memakai fitur itu, percobaan yang disinkronkan beserta fotonya juga disimpan di server. Rancob tidak memuat iklan atau pelacak iklan, dan kami tidak menjual data Anda.</div>
 
-      <h2>1. Data yang Anda masukkan</h2>
-      <p>Judul percobaan, perlakuan, denah petak, nilai pengamatan, catatan, kegiatan lapangan, serta nama penanggung jawab, pembimbing, dan lokasi yang Anda isi disimpan di database di dalam HP Anda. Versi aplikasi saat ini tidak mengirim data tersebut ke server kami.</p>
+    <nav class="card toc" aria-label="Daftar isi">
+      <strong>Isi</strong>
+      <ol>
+        <li><a href="#tanpa-akun">Memakai Rancob tanpa akun</a></li>
+        <li><a href="#akun">Akun, sinkron, dan foto di cloud</a></li>
+        <li><a href="#kolaborasi">Kolaborasi</a></li>
+        <li><a href="#langganan">Langganan Pro</a></li>
+        <li><a href="#pemroses">Pihak yang memproses data</a></li>
+        <li><a href="#simpan">Masa simpan dan penghapusan</a></li>
+        <li><a href="#keamanan">Keamanan</a></li>
+        <li><a href="#tidak">Yang tidak kami lakukan</a></li>
+        <li><a href="#hak">Hak Anda</a></li>
+        <li><a href="#lain">Anak, perubahan, dan kontak</a></li>
+      </ol>
+    </nav>
 
-      <h2>2. Kamera dan foto</h2>
-      <p>Aplikasi meminta izin kamera dan galeri hanya saat Anda menambahkan foto ke petak atau kegiatan. Foto disalin ke folder aplikasi di HP Anda. Aplikasi tidak membaca foto lain di galeri dan tidak mengirim foto ke server kami.</p>
+    <h2 id="tanpa-akun">1. Memakai Rancob tanpa akun</h2>
+    <p>Rancob bisa dipakai sepenuhnya tanpa akun. Dalam mode ini:</p>
+    <ul>
+      <li><strong>Data yang Anda masukkan</strong> (judul percobaan, perlakuan, denah petak, nilai pengamatan, catatan, jurnal kegiatan, serta nama penanggung jawab, pembimbing, dan lokasi yang Anda isi) disimpan di database di dalam HP Anda dan tidak dikirim ke server kami.</li>
+      <li><strong>Kamera dan foto:</strong> izin kamera atau galeri hanya diminta saat Anda menambahkan foto. Foto disalin ke folder aplikasi di HP. Aplikasi tidak membaca foto lain di galeri.</li>
+      <li><strong>Cadangan dan ekspor:</strong> file ZIP (data dan foto satu percobaan) atau CSV hanya dibuat saat Anda memintanya, dan Anda sendiri yang menentukan ke mana file itu disimpan atau dibagikan. Setelah dibagikan, file tunduk pada kebijakan layanan yang Anda pilih (misalnya Google Drive atau WhatsApp).</li>
+    </ul>
 
-      <h2>3. Cadangan (file ZIP)</h2>
-      <p>Saat Anda memilih "Cadangkan", aplikasi membuat file ZIP berisi data dan foto satu percobaan. Anda sendiri yang menentukan ke mana file itu disimpan atau dibagikan (misalnya Google Drive, email, atau WhatsApp). Setelah dibagikan, file tersebut tunduk pada kebijakan layanan yang Anda pilih.</p>
+    <h2 id="akun">2. Akun, sinkron, dan foto di cloud</h2>
+    <p>Sinkron antarperangkat dan kolaborasi adalah fitur Pro yang sedang diuji dan akan diumumkan di aplikasi saat tersedia. Fitur ini hanya aktif jika Anda memilih masuk (login) dengan email (kode sekali pakai, tanpa kata sandi) atau dengan akun Google. Jika Anda masuk, kami memproses:</p>
+    <div class="table-scroll">
+      <table class="data">
+        <thead><tr><th scope="col">Data</th><th scope="col">Untuk apa</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Data akun:</strong> alamat email, ID akun acak, waktu pembuatan akun dan masuk terakhir. Jika memakai Google: identitas akun Google yang tertaut ke email itu.</td><td>Masuk, mengenali Anda di beberapa HP, dan menerima undangan kolaborasi.</td></tr>
+          <tr><td><strong>Data percobaan yang disinkronkan:</strong> rancangan, perlakuan, petak, nilai pengamatan, catatan, dan jurnal kegiatan, beserta <strong>riwayat revisinya</strong> (siapa mengubah apa dan kapan).</td><td>Menyamakan data di semua HP Anda dan kolaborator, serta mencegah perubahan saling menimpa.</td></tr>
+          <tr><td><strong>Foto yang diunggah</strong> dari percobaan yang disinkronkan (hingga 20 MB per berkas), beserta ukuran dan sidik jari berkas (hash).</td><td>Menampilkan foto yang sama di HP lain dan memastikan berkas tidak rusak.</td></tr>
+          <tr><td><strong>Data kolaborasi:</strong> email orang yang Anda undang, perannya (pembaca atau editor), dan status undangan.</td><td>Memberi akses hanya kepada orang yang Anda undang.</td></tr>
+          <tr><td><strong>Status langganan:</strong> apakah akun Anda Pro dan sampai kapan.</td><td>Memeriksa hak memakai fitur Pro di server, termasuk masa tenggang kolaborator.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Di HP, data setiap akun disimpan terpisah dari data tanpa akun. Percobaan yang tidak Anda sinkronkan tetap hanya ada di HP.</p>
+    <p>Dasar pemrosesannya adalah pelaksanaan layanan yang Anda minta, sesuai Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi.</p>
 
-      <h2>4. Pembelian langganan Pro</h2>
-      <p>Pembayaran diproses oleh Google Play. Kami tidak menerima nomor kartu atau data pembayaran Anda. Untuk memeriksa status langganan, aplikasi memakai layanan RevenueCat, yang menerima ID pembelian acak, jenis produk, waktu transaksi, dan status langganan dari Google Play. Data ini tidak berisi nama atau email Anda.</p>
+    <h2 id="kolaborasi">3. Kolaborasi</h2>
+    <ul>
+      <li>Orang yang Anda undang dapat melihat percobaan itu beserta fotonya; editor juga dapat menambah dan mengubah datanya. Riwayat revisi mencatat siapa yang mengubah apa.</li>
+      <li>Undangan hanya bisa diterima oleh akun dengan email yang sudah terverifikasi, dan kedaluwarsa setelah 7 hari.</li>
+      <li>Anggota percobaan dapat melihat apakah Pro pemilik masih aktif dan sampai kapan masa tenggang kolaborator berlaku.</li>
+      <li>Jika Anda mencabut akses seseorang, ia tidak lagi menerima data baru dari server, tetapi salinan yang sudah tersimpan di HP-nya, file yang pernah ia ekspor, atau foto yang pernah ia simpan tidak dapat kami tarik kembali.</li>
+    </ul>
 
-      <h2>5. Yang tidak kami lakukan</h2>
-      <ul>
-        <li>Tidak ada iklan dan tidak ada pelacakan untuk iklan.</li>
-        <li>Tidak ada akun atau login pada versi saat ini.</li>
-        <li>Tidak ada penjualan atau penyewaan data kepada pihak lain.</li>
-      </ul>
+    <h2 id="langganan">4. Langganan Pro</h2>
+    <p>Pembayaran diproses oleh Google Play. Kami tidak menerima nomor kartu atau data pembayaran Anda. Untuk memeriksa status langganan, aplikasi memakai layanan RevenueCat, yang menerima dari Google Play token pembelian, jenis produk, waktu transaksi, dan status langganan.</p>
+    <p>RevenueCat mengenali Anda dengan ID acak. Jika Anda masuk dengan akun Rancob, ID itu adalah ID akun acak Anda, supaya Pro berlaku di semua HP Anda; kami tidak mengirim nama atau email Anda ke RevenueCat. RevenueCat lalu memberi tahu server kami status Pro akun tersebut. ID ini ditampilkan sebagai <strong>ID dukungan</strong> di halaman Profil, untuk keperluan bantuan.</p>
 
-      <h2>6. Fitur online di masa depan</h2>
-      <p>Kami berencana menambahkan login opsional, sinkronisasi antar-perangkat, dan unggah foto ke cloud. Fitur tersebut hanya aktif jika Anda memilih memakainya. Sebelum fitur itu tersedia, kebijakan ini akan diperbarui untuk menjelaskan data apa yang disimpan di server, di mana, dan berapa lama.</p>
+    <h2 id="pemroses">5. Pihak yang memproses data</h2>
+    <p>Kami tidak menjual atau menyewakan data. Data diproses oleh penyedia berikut atas nama kami, hanya untuk menjalankan fitur yang Anda pakai:</p>
+    <ul>
+      <li><strong>Supabase</strong>: login, basis data akun dan percobaan yang disinkronkan, penyimpanan foto.</li>
+      <li><strong>PowerSync</strong>: penyaluran data percobaan antara server dan HP.</li>
+      <li><strong>Google</strong>: login dengan Google (jika Anda memilihnya) dan pembayaran Google Play.</li>
+      <li><strong>RevenueCat</strong>: status langganan Pro.</li>
+    </ul>
+    <p>Server para penyedia ini dapat berada di luar Indonesia, sehingga data Anda dapat ditransfer ke luar negeri. Koneksi ke layanan tersebut dienkripsi (HTTPS).</p>
 
-      <h2>7. Penyimpanan dan penghapusan</h2>
-      <p>Data tetap ada di HP Anda sampai Anda menghapus percobaan di aplikasi atau menghapus aplikasinya. Menghapus aplikasi menghapus semua data dan fotonya dari HP. Lihat <a href="hapus-data.html">cara menghapus data</a>.</p>
+    <h2 id="simpan">6. Masa simpan dan penghapusan</h2>
+    <ul>
+      <li><strong>Di HP:</strong> data tetap ada sampai Anda menghapus percobaan, menghapus data aplikasi, atau menghapus aplikasinya.</li>
+      <li><strong>Di cloud:</strong> data akun dan percobaan yang disinkronkan disimpan selama akun Anda ada.</li>
+      <li><strong>Percobaan yang dihapus:</strong> server menyimpan penanda hapus supaya HP lain ikut menghapusnya. Saat ini riwayat revisi dan foto percobaan yang dihapus belum dibersihkan otomatis dari server. Anda dapat meminta penghapusan permanennya lewat email.</li>
+      <li><strong>Menghapus akun:</strong> tombol hapus akun belum tersedia di aplikasi. Untuk menghapus akun beserta datanya di cloud, ikuti langkah di <a href="hapus-data.html">halaman hapus data</a>.</li>
+    </ul>
 
-      <h2>8. Anak-anak</h2>
-      <p>Rancob ditujukan untuk mahasiswa, peneliti, dan praktisi pertanian, bukan untuk anak-anak.</p>
+    <h2 id="keamanan">7. Keamanan</h2>
+    <ul>
+      <li>Koneksi ke server memakai HTTPS. Setiap percobaan di cloud hanya bisa dibaca pemiliknya dan orang yang ia undang. Penyimpanan foto bersifat privat.</li>
+      <li>Database di HP dan file cadangan ZIP tidak dienkripsi oleh Rancob. Lindungi HP Anda dengan kunci layar dan simpan file cadangan di tempat yang aman.</li>
+      <li>Jika Anda mengaktifkan pencadangan Google di Android, data aplikasi Rancob dapat ikut tersimpan di cadangan akun Google Anda, sesuai pengaturan Android.</li>
+      <li>Jika terjadi kegagalan pelindungan data pribadi yang menyangkut Anda, kami memberi tahu Anda paling lambat 3 × 24 jam setelah mengetahuinya, sesuai UU Pelindungan Data Pribadi.</li>
+    </ul>
 
-      <h2>9. Hak Anda</h2>
-      <p>Sesuai Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi, Anda berhak meminta informasi, perbaikan, dan penghapusan data pribadi Anda. Karena data versi saat ini hanya ada di HP Anda, Anda dapat mengubah atau menghapusnya langsung di aplikasi. Untuk pertanyaan lain, hubungi kami.</p>
+    <h2 id="tidak">8. Yang tidak kami lakukan</h2>
+    <ul>
+      <li>Tidak ada iklan dan tidak ada pelacakan untuk iklan.</li>
+      <li>Tidak ada penjualan atau penyewaan data kepada pihak lain.</li>
+      <li>Kami tidak membuka isi percobaan Anda kecuali Anda memintanya untuk keperluan bantuan, atau diwajibkan oleh hukum.</li>
+    </ul>
 
-      <h2>10. Perubahan kebijakan</h2>
-      <p>Jika kebijakan ini berubah, tanggal di atas akan diperbarui. Perubahan penting akan diberitahukan di aplikasi.</p>
+    <h2 id="hak">9. Hak Anda</h2>
+    <p>Sesuai UU Nomor 27 Tahun 2022, Anda berhak memperoleh informasi, mengakses, memperbaiki, memperoleh salinan, dan menghapus data pribadi Anda, serta menarik persetujuan. Anda dapat:</p>
+    <ul>
+      <li>mengubah atau menghapus data langsung di aplikasi;</li>
+      <li>mengekspor percobaan ke CSV atau cadangan ZIP;</li>
+      <li>berhenti memakai sinkron dengan keluar dari akun;</li>
+      <li>meminta salinan atau penghapusan data akun Anda di cloud lewat <a href="mailto:rancob@agronominion.com">rancob@agronominion.com</a>.</li>
+    </ul>
 
-      <h2>11. Kontak</h2>
-      <p>Nazri Hasanulfuad · <a href="mailto:rancob@agronominion.com">rancob@agronominion.com</a></p>
+    <h2 id="lain">10. Anak, perubahan, dan kontak</h2>
+    <p>Rancob ditujukan untuk mahasiswa, peneliti, dan praktisi pertanian, bukan untuk anak-anak.</p>
+    <p>Jika kebijakan ini berubah, tanggal di atas diperbarui. Perubahan penting diberitahukan di aplikasi atau di halaman ini.</p>
+    <p>Pengendali data: Nazri Hasanulfuad · <a href="mailto:rancob@agronominion.com">rancob@agronominion.com</a></p>
 
-      <section class="lang" id="english" lang="en">
-        <h1>Privacy Policy</h1>
-        <p class="meta">Effective 15 November 2026</p>
-        <p>Rancob is an app for planning and recording agricultural field experiments, developed by Nazri Hasanulfuad ("we").</p>
-        <div class="card"><strong>In short:</strong> your experiment data and photos stay on your own phone. We do not receive or sell them, and the app has no ads or trackers.</div>
-        <h2>Data you enter</h2>
-        <p>Experiments, treatments, plot layouts, observations, notes, field activities, and the names and location you enter are stored in a database on your device. The current version does not send them to our servers.</p>
-        <h2>Camera and photos</h2>
-        <p>Camera and gallery access is requested only when you add a photo. Photos are copied into the app's folder on your device and are not uploaded to our servers.</p>
-        <h2>Backups (ZIP files)</h2>
-        <p>When you choose "Back up", the app creates a ZIP file with one experiment's data and photos. You decide where to save or share it.</p>
-        <h2>Pro subscription</h2>
-        <p>Payments are processed by Google Play; we never receive your card details. To check subscription status the app uses RevenueCat, which receives a random purchase ID, product, transaction time and subscription status from Google Play, but not your name or email.</p>
-        <h2>What we do not do</h2>
-        <p>No ads, no ad tracking, no accounts in the current version, and no selling or renting of data.</p>
-        <h2>Future online features</h2>
-        <p>Optional sign-in, multi-device sync and cloud photo upload are planned. They will be opt-in, and this policy will be updated before they become available.</p>
-        <h2>Retention and deletion</h2>
-        <p>Data stays on your device until you delete an experiment or uninstall the app. See <a href="hapus-data.html">how to delete your data</a>.</p>
-        <h2>Your rights and contact</h2>
-        <p>Under Indonesian Law No. 27 of 2022 on Personal Data Protection you may request access, correction and deletion of your personal data. Contact: Nazri Hasanulfuad · <a href="mailto:rancob@agronominion.com">rancob@agronominion.com</a></p>
-      </section>
-    </main>
-    <footer>© 2026 Rancob · <a href="./">Beranda</a> · <a href="syarat.html">Syarat penggunaan</a></footer>
-  </div>
+    <section class="lang" id="english" lang="en">
+      <h1>Privacy Policy</h1>
+      <p class="meta">Effective 22 November 2026 · replaces the version of 15 November 2026</p>
+      <p>Rancob is an app for planning, recording and analyzing agricultural field experiments, developed by Nazri Hasanulfuad ("we").</p>
+      <div class="card soft"><strong>In short:</strong> without an account, your experiment data and photos stay on your phone. Accounts are optional and only used for multi-device sync and collaboration; if you sign in and use them, synced experiments and their photos are also stored on servers. No ads, no ad trackers, and we never sell your data.</div>
+      <h2>Using Rancob without an account</h2>
+      <p>Everything you enter (experiments, treatments, plot layouts, observations, notes, field journal, names and locations) is stored in a database on your device and is not sent to our servers. Camera or gallery access is requested only when you add a photo. ZIP backups and CSV exports are created only when you ask, and you decide where they go.</p>
+      <h2>Accounts, sync and cloud photos</h2>
+      <p>Sync and collaboration are Pro features in testing, announced in the app when available. They are active only if you sign in with an email code (no password) or Google. We then process: account data (email, random account ID, creation and last sign-in time, the linked Google identity if used); the experiments you sync, including their <strong>revision history</strong> (who changed what and when); uploaded photos (up to 20 MB each) with size and hash; the emails and roles of people you invite; and your Pro status. On the device, each account's data is kept apart from guest data. The legal basis is performing the service you request (Indonesian Law No. 27 of 2022 on Personal Data Protection).</p>
+      <h2>Collaboration</h2>
+      <p>People you invite can view the experiment and its photos; editors can also change it. Invitations need a verified email and expire after 7 days. Members can see whether the owner's Pro is active and how long the collaborator grace period lasts. Revoking access stops new data from reaching that person, but we cannot recall copies already on their device or files they exported.</p>
+      <h2>Pro subscription</h2>
+      <p>Payments are processed by Google Play; we never receive card details. RevenueCat checks subscription status and receives the purchase token, product, transaction time and status from Google Play. RevenueCat knows you by a random ID; when you are signed in it is your random account ID so Pro follows your account. We do not send your name or email to RevenueCat. The ID is shown as the Support ID in Profile.</p>
+      <h2>Processors</h2>
+      <p>Supabase (sign-in, database, photo storage), PowerSync (moving experiment data between server and devices), Google (Google sign-in, Google Play billing) and RevenueCat (subscription status). Their servers may be outside Indonesia, so your data may be transferred abroad. Connections use HTTPS.</p>
+      <h2>Retention and deletion</h2>
+      <p>On the device, data stays until you delete it or the app. In the cloud, account and synced data are kept while your account exists. For a deleted experiment, the server keeps a deletion marker so other devices remove it; its revision history and photos are currently not purged automatically, and you can ask us by email to delete them permanently. In-app account deletion is not available yet; see <a href="hapus-data.html#english">deleting your data</a>.</p>
+      <h2>Security</h2>
+      <p>Cloud experiments are readable only by their owner and invited members, and photo storage is private. The on-device database and ZIP backups are not encrypted by Rancob, so use a screen lock and keep backups safe. If Android backup to Google is on, app data may be included according to your Android settings. We will notify you within 3 × 24 hours of learning of a personal data breach that affects you.</p>
+      <h2>Your rights and contact</h2>
+      <p>You may request information, access, correction, a copy and deletion of your personal data, and withdraw consent (for example by signing out). Rancob is not intended for children. Contact: Nazri Hasanulfuad · <a href="mailto:rancob@agronominion.com">rancob@agronominion.com</a></p>
+    </section>
+  </main>
+  <footer>
+    <div class="wrap">
+      <div class="cols"><a href="paket.html">Paket</a><a href="faq.html">FAQ</a><a href="kontak.html">Kontak</a><a href="privasi.html">Kebijakan privasi</a><a href="syarat.html">Syarat penggunaan</a><a href="hapus-data.html">Hapus data</a><a href="en.html" lang="en">English</a></div>
+      <p>© 2026 Rancob · Dikembangkan oleh Nazri Hasanulfuad · <a href="mailto:rancob@agronominion.com">rancob@agronominion.com</a></p>
+    </div>
+  </footer>
 </body>
 </html>
