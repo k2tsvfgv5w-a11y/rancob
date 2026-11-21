@@ -7,7 +7,7 @@ Situs statis tanpa build; cukup HTML + `style.css`.
 | Halaman | Isi |
 |---|---|
 | `index.html` | Beranda/profil: untuk siapa, fitur, cara kerja, ringkasan paket |
-| `paket.html` | Gratis, Pro, Tim (segera hadir, tanpa harga/tombol beli) |
+| `paket.html` | Gratis dan Pro; Rancob Tim hanya satu kalimat "segera hadir" |
 | `faq.html`, `kontak.html` | Pertanyaan umum; email, Rancob Tim, uji tertutup |
 | `en.html` | Ringkasan berbahasa Inggris |
 | `privasi.html`, `syarat.html`, `hapus-data.html` | Halaman hukum (ID + EN). **URL tidak boleh berubah**: aplikasi menautkannya dari layar Pro (`lib/features/plan/pro_screen.dart`) dan Play Console. |
