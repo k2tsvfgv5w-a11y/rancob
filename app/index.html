@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>Rancob Web – input data dan analisis percobaan</title>
+  <meta name="description" content="Rancang percobaan RAL, RAK, dan faktorial, catat data, lalu analisis dengan ANOVA, DMRT, BNJ, dan BNT langsung di browser. Data tersimpan hanya di perangkat Anda.">
+  <link rel="icon" href="../favicon.png">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="app.css">
+  <script src="core.js" defer></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <a class="skip" href="#app" data-t="app.skip">Langsung ke isi</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="../" data-t-label="nav.site"><span class="logo"><svg viewBox="93 80 320 352" aria-hidden="true"><rect x="126.5" y="93.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="193.5" y="93.0" width="58" height="58" rx="12" fill="#BFE3C8"/><rect x="260.5" y="93.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="126.5" y="160.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="327.5" y="160.0" width="58" height="58" rx="12" fill="#F0B429"/><rect x="126.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="193.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="260.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="126.5" y="294.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="260.5" y="294.0" width="58" height="58" rx="12" fill="#BFE3C8"/><rect x="126.5" y="361.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="327.5" y="361.0" width="58" height="58" rx="12" fill="#FFFFFF"/></svg></span><span data-t="app.name">Rancob Web</span></a>
+      <nav class="site-nav" aria-label="Menu">
+        <a href="#/" data-t="nav.home">Percobaan</a>
+        <a href="../faq.html" data-t="nav.faq">FAQ</a>
+        <a href="../privasi.html" data-t="nav.privacy">Privasi</a>
+        <a href="../syarat.html" data-t="nav.terms">Syarat</a>
+        <button id="lang" class="linkbtn" type="button" data-t="nav.lang">English</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap" id="main">
+    <p class="beta"><span class="pill accent" data-t="app.beta">Beta · data lokal</span></p>
+    <div id="app" tabindex="-1"><p class="muted" data-t="app.loading">Memuat mesin analisis…</p></div>
+    <noscript><div class="card note" data-t="app.noscript">Rancob Web membutuhkan JavaScript.</div></noscript>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <footer>
+    <div class="wrap">
+      <div class="cols"><a href="../" data-t="foot.app">Aplikasi Android Rancob</a><a href="../privasi.html" data-t="foot.privacyLink">Kebijakan privasi</a></div>
+      <p data-t="foot.privacy">Semua perhitungan berjalan di browser Anda. Data tidak dikirim ke server.</p>
+    </div>
+  </footer>
+</body>
+</html>

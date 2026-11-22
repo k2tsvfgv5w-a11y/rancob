@@ -1,0 +1,12 @@
+name: rancob_web_core
+description: "Thin JS-interop facade over agri_core, compiled to app/core.js by tools/build-core.mjs."
+publish_to: none
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  # Default location on the author's machine. tools/build-core.mjs writes
+  # pubspec_overrides.yaml (git-ignored) that points at $RANCOB_APP instead.
+  agri_core:
+    path: ../../agri-research-app/packages/agri_core

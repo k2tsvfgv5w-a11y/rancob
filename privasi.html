@@ -13,7 +13,7 @@
   <header class="site-header">
     <div class="wrap">
       <a class="brand" href="./"><span class="logo"><svg viewBox="93 80 320 352" aria-hidden="true"><rect x="126.5" y="93.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="193.5" y="93.0" width="58" height="58" rx="12" fill="#BFE3C8"/><rect x="260.5" y="93.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="126.5" y="160.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="327.5" y="160.0" width="58" height="58" rx="12" fill="#F0B429"/><rect x="126.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="193.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="260.5" y="227.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="126.5" y="294.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="260.5" y="294.0" width="58" height="58" rx="12" fill="#BFE3C8"/><rect x="126.5" y="361.0" width="58" height="58" rx="12" fill="#FFFFFF"/><rect x="327.5" y="361.0" width="58" height="58" rx="12" fill="#FFFFFF"/></svg></span>Rancob</a>
-      <nav class="site-nav" aria-label="Menu utama"><a href="./">Beranda</a><a href="./#fitur">Fitur</a><a href="paket.html">Paket</a><a href="faq.html">FAQ</a><a href="kontak.html">Kontak</a><a href="en.html" lang="en" hreflang="en">English</a></nav>
+      <nav class="site-nav" aria-label="Menu utama"><a href="./">Beranda</a><a href="./#fitur">Fitur</a><a href="app/">Coba di web</a><a href="paket.html">Paket</a><a href="faq.html">FAQ</a><a href="kontak.html">Kontak</a><a href="en.html" lang="en" hreflang="en">English</a></nav>
     </div>
   </header>
   <main id="isi" class="wrap narrow">
@@ -28,6 +28,7 @@
       <strong>Isi</strong>
       <ol>
         <li><a href="#tanpa-akun">Memakai Rancob tanpa akun</a></li>
+        <li><a href="#web">Rancob Web (versi browser)</a></li>
         <li><a href="#akun">Akun, sinkron, dan foto di cloud</a></li>
         <li><a href="#kolaborasi">Kolaborasi</a></li>
         <li><a href="#langganan">Langganan Pro</a></li>
@@ -48,7 +49,17 @@
       <li><strong>Cadangan dan ekspor:</strong> file ZIP (data dan foto satu percobaan) atau CSV hanya dibuat saat Anda memintanya, dan Anda sendiri yang menentukan ke mana file itu disimpan atau dibagikan. Setelah dibagikan, file tunduk pada kebijakan layanan yang Anda pilih (misalnya Google Drive atau WhatsApp).</li>
     </ul>
 
-    <h2 id="akun">2. Akun, sinkron, dan foto di cloud</h2>
+    <h2 id="web">2. Rancob Web (versi browser)</h2>
+    <p>Rancob Web (<a href="app/">rancob.agronominion.com/app</a>) adalah versi beta yang berjalan di browser. Di versi ini:</p>
+    <ul>
+      <li><strong>Data percobaan</strong> (rancangan, perlakuan, nilai pengamatan, judul, tanaman, lokasi) disimpan hanya di penyimpanan lokal browser Anda (localStorage). Data itu tidak dikirim ke server kami atau pihak lain, dan tidak ada akun.</li>
+      <li>Perhitungan berjalan di browser Anda. Halaman ini memakai kebijakan keamanan konten yang melarang kode halaman membuat permintaan jaringan, sehingga data Anda tidak bisa terkirim keluar dari halaman.</li>
+      <li>Rancob Web tidak memakai cookie, analitik, iklan, atau pelacak.</li>
+      <li>Data hilang jika Anda menghapus data situs, memakai mode privat, atau browser membersihkan penyimpanan. Hapus percobaan lewat tab Info, atau hapus data situs di pengaturan browser. File cadangan (.json) dan CSV yang Anda unduh tersimpan di perangkat Anda dan tidak tercakup di sini.</li>
+      <li>Situs ini disajikan oleh GitHub Pages. Saat Anda membuka halaman mana pun di situs ini, GitHub dapat mencatat alamat IP dan data permintaan standar sesuai kebijakan privasi GitHub. Ini tidak mencakup isi percobaan Anda.</li>
+    </ul>
+
+    <h2 id="akun">3. Akun, sinkron, dan foto di cloud</h2>
     <p>Sinkron antarperangkat dan kolaborasi adalah fitur Pro yang sedang diuji dan akan diumumkan di aplikasi saat tersedia. Fitur ini hanya aktif jika Anda memilih masuk (login) dengan email (kode sekali pakai, tanpa kata sandi) atau dengan akun Google. Jika Anda masuk, kami memproses:</p>
     <div class="table-scroll">
       <table class="data">
@@ -65,7 +76,7 @@
     <p>Di HP, data setiap akun disimpan terpisah dari data tanpa akun. Percobaan yang tidak Anda sinkronkan tetap hanya ada di HP.</p>
     <p>Dasar pemrosesannya adalah pelaksanaan layanan yang Anda minta, sesuai Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi.</p>
 
-    <h2 id="kolaborasi">3. Kolaborasi</h2>
+    <h2 id="kolaborasi">4. Kolaborasi</h2>
     <ul>
       <li>Orang yang Anda undang dapat melihat percobaan itu beserta fotonya; editor juga dapat menambah dan mengubah datanya. Riwayat revisi mencatat siapa yang mengubah apa.</li>
       <li>Undangan hanya bisa diterima oleh akun dengan email yang sudah terverifikasi, dan kedaluwarsa setelah 7 hari.</li>
@@ -73,11 +84,11 @@
       <li>Jika Anda mencabut akses seseorang, ia tidak lagi menerima data baru dari server, tetapi salinan yang sudah tersimpan di HP-nya, file yang pernah ia ekspor, atau foto yang pernah ia simpan tidak dapat kami tarik kembali.</li>
     </ul>
 
-    <h2 id="langganan">4. Langganan Pro</h2>
+    <h2 id="langganan">5. Langganan Pro</h2>
     <p>Pembayaran diproses oleh Google Play. Kami tidak menerima nomor kartu atau data pembayaran Anda. Untuk memeriksa status langganan, aplikasi memakai layanan RevenueCat, yang menerima dari Google Play token pembelian, jenis produk, waktu transaksi, dan status langganan.</p>
     <p>RevenueCat mengenali Anda dengan ID acak. Jika Anda masuk dengan akun Rancob, ID itu adalah ID akun acak Anda, supaya Pro berlaku di semua HP Anda; kami tidak mengirim nama atau email Anda ke RevenueCat. RevenueCat lalu memberi tahu server kami status Pro akun tersebut. ID ini ditampilkan sebagai <strong>ID dukungan</strong> di halaman Profil, untuk keperluan bantuan.</p>
 
-    <h2 id="pemroses">5. Pihak yang memproses data</h2>
+    <h2 id="pemroses">6. Pihak yang memproses data</h2>
     <p>Kami tidak menjual atau menyewakan data. Data diproses oleh penyedia berikut atas nama kami, hanya untuk menjalankan fitur yang Anda pakai:</p>
     <ul>
       <li><strong>Supabase</strong>: login, basis data akun dan percobaan yang disinkronkan, penyimpanan foto.</li>
@@ -87,7 +98,7 @@
     </ul>
     <p>Server para penyedia ini dapat berada di luar Indonesia, sehingga data Anda dapat ditransfer ke luar negeri. Koneksi ke layanan tersebut dienkripsi (HTTPS).</p>
 
-    <h2 id="simpan">6. Masa simpan dan penghapusan</h2>
+    <h2 id="simpan">7. Masa simpan dan penghapusan</h2>
     <ul>
       <li><strong>Di HP:</strong> data tetap ada sampai Anda menghapus percobaan, menghapus data aplikasi, atau menghapus aplikasinya.</li>
       <li><strong>Di cloud:</strong> data akun dan percobaan yang disinkronkan disimpan selama akun Anda ada.</li>
@@ -95,7 +106,7 @@
       <li><strong>Menghapus akun:</strong> tombol hapus akun belum tersedia di aplikasi. Untuk menghapus akun beserta datanya di cloud, ikuti langkah di <a href="hapus-data.html">halaman hapus data</a>.</li>
     </ul>
 
-    <h2 id="keamanan">7. Keamanan</h2>
+    <h2 id="keamanan">8. Keamanan</h2>
     <ul>
       <li>Koneksi ke server memakai HTTPS. Setiap percobaan di cloud hanya bisa dibaca pemiliknya dan orang yang ia undang. Penyimpanan foto bersifat privat.</li>
       <li>Database di HP dan file cadangan ZIP tidak dienkripsi oleh Rancob. Lindungi HP Anda dengan kunci layar dan simpan file cadangan di tempat yang aman.</li>
@@ -103,14 +114,14 @@
       <li>Jika terjadi kegagalan pelindungan data pribadi yang menyangkut Anda, kami memberi tahu Anda paling lambat 3 × 24 jam setelah mengetahuinya, sesuai UU Pelindungan Data Pribadi.</li>
     </ul>
 
-    <h2 id="tidak">8. Yang tidak kami lakukan</h2>
+    <h2 id="tidak">9. Yang tidak kami lakukan</h2>
     <ul>
       <li>Tidak ada iklan dan tidak ada pelacakan untuk iklan.</li>
       <li>Tidak ada penjualan atau penyewaan data kepada pihak lain.</li>
       <li>Kami tidak membuka isi percobaan Anda kecuali Anda memintanya untuk keperluan bantuan, atau diwajibkan oleh hukum.</li>
     </ul>
 
-    <h2 id="hak">9. Hak Anda</h2>
+    <h2 id="hak">10. Hak Anda</h2>
     <p>Sesuai UU Nomor 27 Tahun 2022, Anda berhak memperoleh informasi, mengakses, memperbaiki, memperoleh salinan, dan menghapus data pribadi Anda, serta menarik persetujuan. Anda dapat:</p>
     <ul>
       <li>mengubah atau menghapus data langsung di aplikasi;</li>
@@ -119,7 +130,7 @@
       <li>meminta salinan atau penghapusan data akun Anda di cloud lewat <a href="mailto:rancob@agronominion.com">rancob@agronominion.com</a>.</li>
     </ul>
 
-    <h2 id="lain">10. Anak, perubahan, dan kontak</h2>
+    <h2 id="lain">11. Anak, perubahan, dan kontak</h2>
     <p>Rancob ditujukan untuk mahasiswa, peneliti, dan praktisi pertanian, bukan untuk anak-anak.</p>
     <p>Jika kebijakan ini berubah, tanggal di atas diperbarui. Perubahan penting diberitahukan di aplikasi atau di halaman ini.</p>
     <p>Pengendali data: Nazri Hasanulfuad · <a href="mailto:rancob@agronominion.com">rancob@agronominion.com</a></p>
@@ -131,6 +142,8 @@
       <div class="card soft"><strong>In short:</strong> without an account, your experiment data and photos stay on your phone. Accounts are optional and only used for multi-device sync and collaboration; if you sign in and use them, synced experiments and their photos are also stored on servers. No ads, no ad trackers, and we never sell your data.</div>
       <h2>Using Rancob without an account</h2>
       <p>Everything you enter (experiments, treatments, plot layouts, observations, notes, field journal, names and locations) is stored in a database on your device and is not sent to our servers. Camera or gallery access is requested only when you add a photo. ZIP backups and CSV exports are created only when you ask, and you decide where they go.</p>
+      <h2>Rancob Web (browser version)</h2>
+      <p>Rancob Web is a beta that runs in the browser. Experiment data (layouts, treatments, observations, titles, crop, location) is stored only in your browser's local storage; it is not sent to us or anyone else, and there is no account. Calculations run in your browser, and the page's content security policy forbids network requests from page code. Rancob Web uses no cookies, analytics, ads or trackers. Data is lost if you clear site data, use a private window, or the browser clears storage; delete experiments in the Info tab or clear site data in your browser settings. Backup (.json) and CSV files you download stay on your device and are outside this policy. This site is served by GitHub Pages, which may log IP addresses and standard request data under GitHub's privacy statement; this does not include the content of your experiments.</p>
       <h2>Accounts, sync and cloud photos</h2>
       <p>Sync and collaboration are Pro features in testing, announced in the app when available. They are active only if you sign in with an email code (no password) or Google. We then process: account data (email, random account ID, creation and last sign-in time, the linked Google identity if used); the experiments you sync, including their <strong>revision history</strong> (who changed what and when); uploaded photos (up to 20 MB each) with size and hash; the emails and roles of people you invite; and your Pro status. On the device, each account's data is kept apart from guest data. The legal basis is performing the service you request (Indonesian Law No. 27 of 2022 on Personal Data Protection).</p>
       <h2>Collaboration</h2>
@@ -149,7 +162,7 @@
   </main>
   <footer>
     <div class="wrap">
-      <div class="cols"><a href="paket.html">Paket</a><a href="faq.html">FAQ</a><a href="kontak.html">Kontak</a><a href="privasi.html">Kebijakan privasi</a><a href="syarat.html">Syarat penggunaan</a><a href="hapus-data.html">Hapus data</a><a href="en.html" lang="en">English</a></div>
+      <div class="cols"><a href="app/">Rancob Web</a><a href="paket.html">Paket</a><a href="faq.html">FAQ</a><a href="kontak.html">Kontak</a><a href="privasi.html">Kebijakan privasi</a><a href="syarat.html">Syarat penggunaan</a><a href="hapus-data.html">Hapus data</a><a href="en.html" lang="en">English</a></div>
       <p>© 2026 Rancob · Dikembangkan oleh Nazri Hasanulfuad · <a href="mailto:rancob@agronominion.com">rancob@agronominion.com</a></p>
     </div>
   </footer>
