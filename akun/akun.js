@@ -1,7 +1,7 @@
 // Account page: passwordless sign-in / sign-up with an emailed code.
 // Text from users only goes through textContent/attributes (see ../app/js/dom.js).
 import { h, append, clear } from '../app/js/dom.js';
-import { createAuth, validEmail, validCode, cleanEmail, cleanCode } from './auth.js';
+import { createAuth, validEmail, validCode, cleanEmail, cleanCode, parseAuthHash } from './auth.js';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
 import { STRINGS } from './i18n.js';
 
@@ -141,4 +141,19 @@ document.getElementById('lang').addEventListener('click', () => {
 });
 
 applyStatic();
-render();
+
+// Arriving from the button in the email: Supabase has verified the address and sent us back here
+// with the session (or an error) in the URL hash. Use it, then remove it from the address bar.
+async function init() {
+  const fromLink = parseAuthHash(location.hash);
+  if (fromLink) history.replaceState(null, '', location.pathname + location.search);
+  if (fromLink?.token) {
+    const r = await auth.getUser(fromLink.token);
+    if (r.ok) { state.user = { token: fromLink.token, email: r.user.email }; session.save(state.user); }
+    else setMsg('error', r.error === 'network' ? 'err.network' : 'err.link');
+  } else if (fromLink?.error) {
+    setMsg('error', fromLink.error === 'link' ? 'err.link' : 'err.other');
+  }
+  render();
+}
+init();

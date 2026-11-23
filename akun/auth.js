@@ -9,6 +9,17 @@ export const validEmail = (s) => { const e = cleanEmail(s); return e.length <= 2
 export const cleanCode = (s) => String(s ?? '').replace(/\s+/g, '');
 export const validCode = (s) => /^\d{6,10}$/.test(cleanCode(s));
 
+/**
+ * Reads what Supabase puts in the URL hash after the emailed button is tapped:
+ * `#access_token=...` on success, `#error=...&error_code=otp_expired` for a dead link.
+ */
+export function parseAuthHash(hash) {
+  const p = new URLSearchParams(String(hash ?? '').replace(/^#/, ''));
+  if (p.get('access_token')) return { token: p.get('access_token') };
+  if (p.get('error') || p.get('error_code')) return { error: p.get('error_code') === 'otp_expired' ? 'link' : 'other' };
+  return null;
+}
+
 /** Maps an Auth error response to a stable key the UI translates. */
 export function classify(status, body) {
   const code = String(body?.error_code ?? body?.code ?? '');
@@ -53,6 +64,17 @@ export function createAuth({ url, key, fetch: f = globalThis.fetch }) {
       const d = r.data;
       if (!d?.access_token) return { ok: false, error: 'other' };
       return { ok: true, session: { token: d.access_token, email: d.user?.email ?? cleanEmail(email) } };
+    },
+    async getUser(token) {
+      let res;
+      try {
+        res = await f(base + '/user', { method: 'GET', headers: headers(token) });
+      } catch {
+        return { ok: false, error: 'network' };
+      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return { ok: false, error: classify(res.status, data) };
+      return data?.email ? { ok: true, user: { email: cleanEmail(data.email) } } : { ok: false, error: 'other' };
     },
     async signOut(token) {
       await call('/logout', {}, token);

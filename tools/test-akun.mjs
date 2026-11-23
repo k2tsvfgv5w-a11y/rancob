@@ -7,7 +7,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const site = join(dirname(fileURLToPath(import.meta.url)), '..');
-const { createAuth, classify, validEmail, validCode, cleanCode, cleanEmail } = await import(join(site, 'akun/auth.js'));
+const { createAuth, classify, validEmail, validCode, cleanCode, cleanEmail, parseAuthHash } = await import(join(site, 'akun/auth.js'));
 const { STRINGS } = await import(join(site, 'akun/i18n.js'));
 
 const reply = (status, body) => async () => ({ ok: status >= 200 && status < 300, status, json: async () => body });
@@ -103,5 +103,23 @@ test('every text key used by the page exists', () => {
   const src = readFileSync(join(site, 'akun/akun.js'), 'utf8') + readFileSync(join(site, 'akun/index.html'), 'utf8');
   const used = new Set([...src.matchAll(/\bt\('([\w.]+)'/g), ...src.matchAll(/data-t="([\w.]+)"/g), ...src.matchAll(/`err\.\$\{/g)].map((m) => m[1]).filter(Boolean));
   for (const k of used) assert.ok(k in STRINGS.id, k);
-  for (const e of ['rate', 'badCode', 'badInput', 'server', 'network', 'other']) assert.ok(`err.${e}` in STRINGS.id, e);
+  for (const e of ['rate', 'badCode', 'badInput', 'server', 'network', 'link', 'other']) assert.ok(`err.${e}` in STRINGS.id, e);
+});
+
+test('parseAuthHash reads the session or the error that Supabase puts in the URL', () => {
+  assert.deepEqual(parseAuthHash('#access_token=abc&refresh_token=r&expires_in=3600&token_type=bearer&type=signup'), { token: 'abc' });
+  assert.deepEqual(parseAuthHash('#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired'), { error: 'link' });
+  assert.deepEqual(parseAuthHash('#error=server_error'), { error: 'other' });
+  for (const none of ['', '#', '#section', null, undefined]) assert.equal(parseAuthHash(none), null, String(none));
+});
+
+test('getUser sends a GET with the bearer token and returns the email', async () => {
+  const f = async (u, o) => { f.last = { u, o }; return { ok: true, status: 200, json: async () => ({ email: 'A@B.id', id: 'x' }) }; };
+  assert.deepEqual(await mk(f).getUser('tok'), { ok: true, user: { email: 'a@b.id' } });
+  assert.equal(f.last.u, 'https://x.supabase.co/auth/v1/user');
+  assert.equal(f.last.o.method, 'GET');
+  assert.equal(f.last.o.headers.Authorization, 'Bearer tok');
+  assert.deepEqual(await mk(reply(401, { error_code: 'bad_jwt' })).getUser('tok'), { ok: false, error: 'badCode' });
+  assert.deepEqual(await mk(reply(200, {})).getUser('tok'), { ok: false, error: 'other' });
+  assert.deepEqual(await mk(async () => { throw new Error('x'); }).getUser('tok'), { ok: false, error: 'network' });
 });

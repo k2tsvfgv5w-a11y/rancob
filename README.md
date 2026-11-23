@@ -11,7 +11,7 @@ Situs statis tanpa build; cukup HTML + `style.css`.
 | `faq.html`, `kontak.html` | Pertanyaan umum; email, Rancob Tim, uji tertutup |
 | `en.html` | Ringkasan berbahasa Inggris |
 | `app/` | **Rancob Web (beta)**: input data dan analisis di browser, data lokal saja (lihat di bawah) |
-| `akun/` | **Akun Rancob (uji coba, belum ditautkan dari menu)**: masuk dan daftar tanpa kata sandi dengan kode dari email (lihat di bawah) |
+| `akun/` | **Akun Rancob (uji coba)**: masuk dan daftar tanpa kata sandi dengan kode dari email (lihat di bawah) |
 | `privasi.html`, `syarat.html`, `hapus-data.html` | Halaman hukum (ID + EN). **URL tidak boleh berubah**: aplikasi menautkannya dari layar Pro (`lib/features/plan/pro_screen.dart`) dan Play Console. |
 
 ## Data paket: jangan ditulis tangan
@@ -94,7 +94,12 @@ templat "Magic Link"; tab **Masuk** tidak membuat akun dan tidak membocorkan apa
 - `akun/config.js` berisi URL dan **publishable key** (aman untuk browser). Jangan pernah mengisi kunci
   rahasia (`sb_secret_…`) atau `service_role` di sini; ada tes yang menolaknya.
 - Panjang kode mengikuti pengaturan Supabase (*Email OTP Length*, saat ini 8 digit); halaman menerima 6–10 angka.
-- Akun belum dipakai untuk menyimpan data di web. Sebelum halaman ini ditautkan dari menu, perbarui bagian
-  "Rancob Web" di `privasi.html` (alamat email diproses di halaman akun) dan teks di `app/`
-  ("tidak ada akun").
+- **Tombol di email** mengarah ke halaman ini: Supabase memverifikasi alamat lalu mengalihkan ke **Site URL**
+  proyek (`https://rancob.agronominion.com/akun/`, diatur di Authentication → URL Configuration), dengan sesi di
+  `#access_token`. `akun.js` membacanya, menghapusnya dari bilah alamat, dan menampilkan "Anda sudah masuk";
+  tautan yang hangus menampilkan pesan minta kode baru. Email yang diminta dari aplikasi Android tetap kembali
+  ke `id.rancob.app://auth-callback`. Kode dan tombol memakai satu token: pakai salah satu saja.
+- Akun belum dipakai untuk menyimpan data di web. `privasi.html` sudah menjelaskan halaman akun dan Resend
+  (pengirim email kode); perbarui bila alurnya berubah. Teks `app/` ("tidak ada akun") tetap benar karena
+  halaman akun terpisah.
 - Tes: `npm test` (termasuk `tools/test-akun.mjs`).
