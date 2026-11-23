@@ -4,6 +4,7 @@ import { h, append, clear } from '../app/js/dom.js';
 import { createAuth, validEmail, validCode, cleanEmail, cleanCode, parseAuthHash } from './auth.js';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
 import { STRINGS } from './i18n.js';
+import { parseTheme, isDark, toggled, initialOf } from './theme.js';
 
 const auth = createAuth({ url: SUPABASE_URL, key: SUPABASE_KEY });
 const root = document.getElementById('akun');
@@ -136,6 +137,12 @@ async function loadProfile() {
   }
 }
 
+async function signOut() {
+  const tok = state.user?.token;
+  state.user = null; state.profile = null; session.save(null); state.step = 'email'; state.email = ''; render();
+  if (tok) await auth.signOut(tok);
+}
+
 function signedIn() {
   return h('div', { class: 'card' },
     h('h2', null, t('prof.title')),
@@ -144,14 +151,13 @@ function signedIn() {
     h('p', { class: 'muted' }, t('in.body')),
     h('div', { class: 'actions' },
       h('a', { class: 'btn primary', href: '../app/' }, t('in.app')),
-      h('button', { type: 'button', class: 'btn ghost', onclick: async () => {
-        const tok = state.user.token; state.user = null; state.profile = null; session.save(null); state.step = 'email'; state.email = ''; render();
-        await auth.signOut(tok);
-      } }, t('btn.signout'))),
+      h('button', { type: 'button', class: 'btn ghost', onclick: signOut }, t('btn.signout'))),
     h('p', { class: 'small' }, h('a', { href: '../hapus-data.html' }, t('in.delete'))));
 }
 
 function render() {
+  if (box.hidden || menuFor !== !!state.user) buildMenu();
+  paintAvatar();
   clear(root);
   append(root, state.user ? signedIn() : (state.step === 'code' ? codeStep() : emailStep()));
   paintResend();
@@ -159,9 +165,129 @@ function render() {
   if (focus && !state.busy && document.activeElement === document.body) focus.focus({ preventScroll: true });
 }
 
+// ---- Account menu: the avatar in the header opens the same card as the app ----
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const ICON = {
+  person: 'M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM4 21c0-4 4-6 8-6s8 2 8 6',
+  crown: 'M3 8l4 4 5-7 5 7 4-4-2 11H5z',
+  help: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7M12 17h.01',
+  shield: 'M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z',
+  moon: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z',
+  out: 'M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M16 8l4 4-4 4M20 12H9',
+};
+function icon(d) {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  for (const [k, v] of Object.entries({ width: '20', height: '20', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' })) svg.setAttribute(k, v);
+  const path = document.createElementNS(SVG_NS, 'path');
+  path.setAttribute('d', d);
+  svg.append(path);
+  return svg;
+}
+
+const btn = document.getElementById('acct-btn');
+const box = document.getElementById('acct-menu');
+let menuFor = null;
+let darkSwitch = null;
+let themeMode = parseTheme(safe(() => localStorage.getItem('rancob.akun.theme')));
+const systemDark = () => !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+function applyTheme() {
+  const root = document.documentElement;
+  if (themeMode) root.setAttribute('data-theme', themeMode); else root.removeAttribute('data-theme');
+}
+function paintSwitch() {
+  if (!darkSwitch) return;
+  const on = isDark(themeMode, systemDark());
+  darkSwitch.setAttribute('aria-checked', String(on));
+  darkSwitch.classList.toggle('on', on);
+}
+function setTheme(mode) {
+  themeMode = mode;
+  safe(() => (mode ? localStorage.setItem('rancob.akun.theme', mode) : localStorage.removeItem('rancob.akun.theme')));
+  applyTheme();
+  paintSwitch();
+}
+
+function openMenu(open, restoreFocus = false) {
+  box.hidden = !open;
+  btn.setAttribute('aria-expanded', String(open));
+  if (open) box.querySelector('a, button')?.focus();
+  else if (restoreFocus) btn.focus();
+}
+
+function paintAvatar() {
+  btn.classList.toggle('out', !state.user);
+  clear(btn);
+  btn.append(state.user ? document.createTextNode(initialOf(state.user.email)) : icon(ICON.person));
+}
+
+function avatarEl() {
+  const a = h('span', { class: `avatar big${state.user ? '' : ' out'}`, 'aria-hidden': 'true' });
+  a.append(state.user ? document.createTextNode(initialOf(state.user.email)) : icon(ICON.person));
+  return a;
+}
+
+function row(tag, attrs, d, label) {
+  return h(tag, { class: 'am-item', ...attrs }, icon(d), h('span', { class: 'am-label' }, label));
+}
+
+function focusForm() {
+  const el = document.getElementById('f-email');
+  el?.scrollIntoView?.({ block: 'center' });
+  el?.focus();
+}
+
+function buildMenu() {
+  clear(box);
+  const signedIn = !!state.user;
+  menuFor = signedIn;
+  const close = () => openMenu(false);
+  const head = signedIn
+    ? h('div', { class: 'am-head' }, avatarEl(),
+      h('div', { class: 'am-who' }, h('div', { class: 'am-name' }, t('menu.accountName')), h('div', { class: 'am-mail' }, state.user.email)))
+    : h('div', { class: 'am-head col' },
+      h('div', { class: 'am-head' }, avatarEl(),
+        h('div', { class: 'am-who' }, h('div', { class: 'am-name' }, t('menu.outTitle')), h('div', { class: 'am-mail' }, t('menu.outBody')))),
+      h('button', { type: 'button', class: 'btn primary', onclick: () => { close(); focusForm(); } }, t('menu.signIn')));
+  // Informational only: Pro is bought inside the Android app (store rules), so no purchase link here.
+  const pro = h('a', { class: 'am-pro', href: '../paket.html' },
+    h('span', { class: 'am-crown' }, icon(ICON.crown)),
+    h('span', { class: 'am-label' }, h('span', { class: 'am-pt' }, t('menu.proTitle')), h('span', { class: 'am-ps' }, t('menu.proSub'))),
+    h('span', { class: 'am-chip' }, 'PRO'));
+  const mine = signedIn
+    ? h('div', { class: 'am-group' },
+      row('button', { type: 'button', onclick: () => { close(); root.scrollIntoView?.({ block: 'start' }); root.focus(); } }, ICON.person, t('menu.profile')))
+    : null;
+  const links = h('div', { class: 'am-group' },
+    row('a', { href: '../faq.html' }, ICON.help, t('menu.help')),
+    row('a', { href: '../privasi.html' }, ICON.shield, t('menu.legal')));
+  darkSwitch = h('button', { type: 'button', role: 'switch', class: 'sw', 'aria-checked': 'false', 'aria-label': t('menu.dark'), onclick: () => setTheme(toggled(themeMode, systemDark())) }, h('span', { class: 'sw-dot' }));
+  const dark = h('div', { class: 'am-group' },
+    h('div', { class: 'am-item static' }, icon(ICON.moon), h('span', { class: 'am-label' }, t('menu.dark')), darkSwitch));
+  paintSwitch();
+  append(box, head, h('hr', { class: 'am-sep' }), pro, mine, links, dark,
+    signedIn ? h('button', { type: 'button', class: 'am-out', onclick: () => { close(); signOut(); } }, icon(ICON.out), t('btn.signout')) : null,
+    signedIn ? h('a', { class: 'am-del', href: '../hapus-data.html' }, t('menu.delete')) : null);
+}
+
+btn.addEventListener('click', () => openMenu(box.hidden));
+document.addEventListener('click', (e) => {
+  if (!box.hidden && !box.contains(e.target) && !btn.contains(e.target)) openMenu(false);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !box.hidden) openMenu(false, true);
+});
+box.addEventListener('focusout', (e) => {
+  if (!box.hidden && e.relatedTarget && !box.contains(e.relatedTarget) && e.relatedTarget !== btn) openMenu(false);
+});
+if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', paintSwitch);
+applyTheme();
+
 function applyStatic() {
   document.documentElement.lang = lang;
   for (const el of document.querySelectorAll('[data-t]')) el.textContent = t(el.dataset.t);
+  for (const el of document.querySelectorAll('[data-t-label]')) el.setAttribute('aria-label', t(el.dataset.tLabel));
+  buildMenu();
   document.title = lang === 'en' ? 'Rancob account – sign in and sign up' : 'Akun Rancob – masuk dan daftar';
 }
 document.getElementById('lang').addEventListener('click', () => {

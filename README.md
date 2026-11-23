@@ -93,6 +93,10 @@ templat "Magic Link"; tab **Masuk** tidak membuat akun dan tidak membocorkan apa
   (CSP `connect-src 'none'`). CSP `akun/` hanya mengizinkan host Supabase proyek.
 - `akun/config.js` berisi URL dan **publishable key** (aman untuk browser). Jangan pernah mengisi kunci
   rahasia (`sb_secret_…`) atau `service_role` di sini; ada tes yang menolaknya.
+- **Menu akun:** avatar di header membuka kartu yang sama dengan aplikasi Android (kepala, banner Pro, Profil,
+  Bantuan, Privasi dan syarat, Mode gelap, Keluar, Hapus akun dan data). Banner Pro hanya informasi dan menuju
+  `paket.html`: Pro dibeli di dalam aplikasi, jadi jangan menambah tautan beli. Saklar mode gelap hanya berlaku
+  di halaman ini (`data-theme` di `akun.css`, pilihan di `localStorage`); tanpa pilihan, halaman ikut sistem.
 - Panjang kode mengikuti pengaturan Supabase (*Email OTP Length*, saat ini 8 digit); halaman menerima 6–10 angka.
 - **Tombol di email** mengarah ke halaman ini: Supabase memverifikasi alamat lalu mengalihkan ke **Site URL**
   proyek (`https://rancob.agronominion.com/akun/`, diatur di Authentication → URL Configuration), dengan sesi di
