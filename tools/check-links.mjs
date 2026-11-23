@@ -5,7 +5,7 @@ import { join, dirname, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const site = join(dirname(fileURLToPath(import.meta.url)), '..');
-const pages = [...readdirSync(site).filter((f) => f.endsWith('.html')), 'app/index.html'];
+const pages = [...readdirSync(site).filter((f) => f.endsWith('.html')), 'app/index.html', 'akun/index.html'];
 const html = Object.fromEntries(pages.map((p) => [p, readFileSync(join(site, p), 'utf8')]));
 const ids = (src) => new Set([...src.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]));
 

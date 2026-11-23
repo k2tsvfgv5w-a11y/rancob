@@ -2,7 +2,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tools/test-web.mjs",
+    "test": "node --test tools/test-web.mjs tools/test-akun.mjs",
     "sync": "node tools/sync-paket.mjs",
     "build:core": "node tools/build-core.mjs",
     "verify:core": "node tools/verify-core.mjs"

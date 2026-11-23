@@ -11,6 +11,7 @@ Situs statis tanpa build; cukup HTML + `style.css`.
 | `faq.html`, `kontak.html` | Pertanyaan umum; email, Rancob Tim, uji tertutup |
 | `en.html` | Ringkasan berbahasa Inggris |
 | `app/` | **Rancob Web (beta)**: input data dan analisis di browser, data lokal saja (lihat di bawah) |
+| `akun/` | **Akun Rancob (uji coba, belum ditautkan dari menu)**: masuk dan daftar tanpa kata sandi dengan kode dari email (lihat di bawah) |
 | `privasi.html`, `syarat.html`, `hapus-data.html` | Halaman hukum (ID + EN). **URL tidak boleh berubah**: aplikasi menautkannya dari layar Pro (`lib/features/plan/pro_screen.dart`) dan Play Console. |
 
 ## Data paket: jangan ditulis tangan
@@ -80,3 +81,20 @@ python3 -m http.server 8765 --directory .
 ```
 
 Kontak: rancob@agronominion.com.
+
+## Akun (`akun/`)
+
+Halaman masuk dan daftar tanpa kata sandi, alurnya sama dengan aplikasi Android: minta kode lewat email
+(`/auth/v1/otp`), lalu ketik kodenya (`/auth/v1/verify`). Tanpa SDK dan tanpa dependensi: hanya `fetch` ke
+API Auth Supabase. Email baru otomatis dibuatkan akun (templat "Confirm signup"), email lama memakai
+templat "Magic Link"; tab **Masuk** tidak membuat akun dan tidak membocorkan apakah alamat terdaftar.
+
+- Halaman ini **terpisah dari `app/`** karena `app/` menjanjikan "data tidak dikirim ke server"
+  (CSP `connect-src 'none'`). CSP `akun/` hanya mengizinkan host Supabase proyek.
+- `akun/config.js` berisi URL dan **publishable key** (aman untuk browser). Jangan pernah mengisi kunci
+  rahasia (`sb_secret_…`) atau `service_role` di sini; ada tes yang menolaknya.
+- Panjang kode mengikuti pengaturan Supabase (*Email OTP Length*, saat ini 8 digit); halaman menerima 6–10 angka.
+- Akun belum dipakai untuk menyimpan data di web. Sebelum halaman ini ditautkan dari menu, perbarui bagian
+  "Rancob Web" di `privasi.html` (alamat email diproses di halaman akun) dan teks di `app/`
+  ("tidak ada akun").
+- Tes: `npm test` (termasuk `tools/test-akun.mjs`).

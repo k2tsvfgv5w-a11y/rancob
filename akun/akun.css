@@ -1,0 +1,37 @@
+/* Account page: styles on top of ../style.css (variables, header, cards, buttons). */
+.beta { margin: 24px 0 0; }
+.linkbtn { background: none; border: 0; padding: 4px 0; color: var(--muted); font: inherit; font-size: 15px; cursor: pointer; text-decoration: underline; }
+.linkbtn:hover { color: var(--primary); }
+.linkbtn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+#akun { outline: none; }
+.form { display: flex; flex-direction: column; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-label { font-weight: 600; font-size: 15px; }
+.field-hint { color: var(--muted); font-size: 14px; }
+input[type="email"], input[type="text"] {
+  width: 100%; min-height: 48px; padding: 10px 14px; font: inherit; font-size: 17px; color: var(--text);
+  background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+}
+input[type="text"] { letter-spacing: 0.25em; font-variant-numeric: tabular-nums; }
+input:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+input[aria-invalid="true"] { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
+.check input { width: 20px; height: 20px; margin-top: 3px; flex: none; accent-color: var(--primary); }
+
+.segs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 14px; }
+.seg { min-height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font: inherit; font-weight: 600; cursor: pointer; }
+.seg[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); }
+.seg:not([aria-pressed="true"]):hover { color: var(--primary); }
+
+button.btn { cursor: pointer; font-family: inherit; }
+button.btn:disabled { opacity: .5; cursor: not-allowed; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.msg { margin: 0; font-size: 15px; min-height: 0; }
+.msg:empty { display: none; }
+.msg.info { color: var(--primary-strong); background: var(--primary-soft); border-radius: 10px; padding: 10px 14px; }
+.msg.error { color: var(--accent); background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; }
+.who-line { font-weight: 600; margin: 0 0 8px; }
+.card.soft h2 { margin-top: 0; font-size: 18px; }
+@media (max-width: 480px) { .row .btn { width: 100%; } }
