@@ -33,5 +33,10 @@ button.btn:disabled { opacity: .5; cursor: not-allowed; }
 .msg.info { color: var(--primary-strong); background: var(--primary-soft); border-radius: 10px; padding: 10px 14px; }
 .msg.error { color: var(--accent); background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; }
 .who-line { font-weight: 600; margin: 0 0 8px; }
+.prof { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 14px 0; font-size: 15px; }
+.prof dt { color: var(--muted); }
+.prof dd { margin: 0; overflow-wrap: anywhere; }
+.prof .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+@media (max-width: 480px) { .prof { grid-template-columns: 1fr; gap: 0; } .prof dd { margin-bottom: 8px; } }
 .card.soft h2 { margin-top: 0; font-size: 18px; }
 @media (max-width: 480px) { .row .btn { width: 100%; } }

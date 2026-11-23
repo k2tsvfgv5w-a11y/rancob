@@ -19,7 +19,7 @@ let lang = safe(() => localStorage.getItem('rancob.akun.lang')) || ((navigator.l
 if (!STRINGS[lang]) lang = 'id';
 const t = (k, vars = {}) => (STRINGS[lang][k] ?? STRINGS.id[k] ?? k).replace(/\{(\w+)\}/g, (m, n) => (vars[n] ?? m));
 
-const state = { mode: 'in', step: 'email', email: '', msg: null, busy: false, cooldown: 0, agreed: false, user: session.load() };
+const state = { mode: 'in', step: 'email', email: '', msg: null, busy: false, cooldown: 0, agreed: false, user: session.load(), profile: null };
 let timer = null;
 
 function startCooldown() {
@@ -96,8 +96,8 @@ function codeStep() {
     state.busy = false;
     if (!r.ok) { setMsg('error', `err.${r.error}`); render(); return; }
     clearInterval(timer);
-    state.user = r.session; session.save(r.session);
-    state.step = 'email'; setMsg(); render();
+    state.user = r.session; session.save(r.session); state.profile = null;
+    state.step = 'email'; setMsg(); render(); loadProfile();
   } },
   msgEl(),
   field('f-code', t('field.code'), input, t('field.codeHint')),
@@ -107,15 +107,45 @@ function codeStep() {
     h('button', { type: 'button', class: 'btn ghost', onclick: () => { clearInterval(timer); state.step = 'email'; setMsg(); render(); } }, t('btn.change'))));
 }
 
+const fmtDate = (iso) => {
+  const d = iso ? new Date(iso) : null;
+  if (!d || Number.isNaN(d.getTime())) return '-';
+  return new Intl.DateTimeFormat(lang === 'id' ? 'id-ID' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(d);
+};
+const methodLabel = (p) => (p === 'email' ? t('prof.methodEmail') : p === 'google' ? t('prof.methodGoogle') : p);
+
+function profileRows() {
+  const p = state.profile;
+  if (!p) return h('p', { class: 'muted small' }, t('prof.loading'));
+  const row = (k, v, cls) => [h('dt', null, t(k)), h('dd', { class: cls }, v)];
+  return h('dl', { class: 'prof' },
+    row('prof.email', p.email),
+    row('prof.id', p.id ?? '-', 'mono'),
+    row('prof.created', fmtDate(p.createdAt)),
+    row('prof.last', fmtDate(p.lastSignInAt)),
+    row('prof.method', p.providers.length ? p.providers.map(methodLabel).join(', ') : '-'));
+}
+
+/** Fetches the account details; a rejected token means the session is over. */
+async function loadProfile() {
+  if (!state.user) return;
+  const r = await auth.getUser(state.user.token);
+  if (r.ok) { state.profile = r.user; render(); return; }
+  if (r.error === 'badCode') {
+    state.user = null; state.profile = null; session.save(null); setMsg('error', 'err.expired'); render();
+  }
+}
+
 function signedIn() {
   return h('div', { class: 'card' },
-    h('h2', null, t('in.title')),
+    h('h2', null, t('prof.title')),
     h('p', { class: 'who-line' }, t('in.as', { email: state.user.email })),
+    profileRows(),
     h('p', { class: 'muted' }, t('in.body')),
     h('div', { class: 'actions' },
       h('a', { class: 'btn primary', href: '../app/' }, t('in.app')),
       h('button', { type: 'button', class: 'btn ghost', onclick: async () => {
-        const tok = state.user.token; state.user = null; session.save(null); state.step = 'email'; state.email = ''; render();
+        const tok = state.user.token; state.user = null; state.profile = null; session.save(null); state.step = 'email'; state.email = ''; render();
         await auth.signOut(tok);
       } }, t('btn.signout'))),
     h('p', { class: 'small' }, h('a', { href: '../hapus-data.html' }, t('in.delete'))));
@@ -155,5 +185,6 @@ async function init() {
     setMsg('error', fromLink.error === 'link' ? 'err.link' : 'err.other');
   }
   render();
+  loadProfile();
 }
 init();

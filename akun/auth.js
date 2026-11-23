@@ -74,7 +74,13 @@ export function createAuth({ url, key, fetch: f = globalThis.fetch }) {
       }
       const data = await res.json().catch(() => ({}));
       if (!res.ok) return { ok: false, error: classify(res.status, data) };
-      return data?.email ? { ok: true, user: { email: cleanEmail(data.email) } } : { ok: false, error: 'other' };
+      if (!data?.email) return { ok: false, error: 'other' };
+      const providers = Array.isArray(data.app_metadata?.providers) ? data.app_metadata.providers
+        : data.app_metadata?.provider ? [data.app_metadata.provider] : [];
+      return { ok: true, user: {
+        email: cleanEmail(data.email), id: data.id ?? null,
+        createdAt: data.created_at ?? null, lastSignInAt: data.last_sign_in_at ?? null, providers,
+      } };
     },
     async signOut(token) {
       await call('/logout', {}, token);

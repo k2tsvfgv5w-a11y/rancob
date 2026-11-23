@@ -115,11 +115,18 @@ test('parseAuthHash reads the session or the error that Supabase puts in the URL
 
 test('getUser sends a GET with the bearer token and returns the email', async () => {
   const f = async (u, o) => { f.last = { u, o }; return { ok: true, status: 200, json: async () => ({ email: 'A@B.id', id: 'x' }) }; };
-  assert.deepEqual(await mk(f).getUser('tok'), { ok: true, user: { email: 'a@b.id' } });
+  assert.deepEqual(await mk(f).getUser('tok'), { ok: true, user: { email: 'a@b.id', id: 'x', createdAt: null, lastSignInAt: null, providers: [] } });
   assert.equal(f.last.u, 'https://x.supabase.co/auth/v1/user');
   assert.equal(f.last.o.method, 'GET');
   assert.equal(f.last.o.headers.Authorization, 'Bearer tok');
   assert.deepEqual(await mk(reply(401, { error_code: 'bad_jwt' })).getUser('tok'), { ok: false, error: 'badCode' });
   assert.deepEqual(await mk(reply(200, {})).getUser('tok'), { ok: false, error: 'other' });
   assert.deepEqual(await mk(async () => { throw new Error('x'); }).getUser('tok'), { ok: false, error: 'network' });
+});
+
+test('getUser returns the profile fields the page shows', async () => {
+  const body = { id: 'u-1', email: 'A@B.id', created_at: '2026-11-24T01:00:00Z', last_sign_in_at: '2026-11-24T02:00:00Z', app_metadata: { provider: 'email', providers: ['email', 'google'] } };
+  assert.deepEqual(await mk(reply(200, body)).getUser('tok'), { ok: true, user: { email: 'a@b.id', id: 'u-1', createdAt: '2026-11-24T01:00:00Z', lastSignInAt: '2026-11-24T02:00:00Z', providers: ['email', 'google'] } });
+  const single = { ...body, app_metadata: { provider: 'email' } };
+  assert.deepEqual((await mk(reply(200, single)).getUser('tok')).user.providers, ['email']);
 });
