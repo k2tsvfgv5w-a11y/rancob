@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 const site = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { createAuth, classify, validEmail, validCode, cleanCode, cleanEmail, parseAuthHash } = await import(join(site, 'akun/auth.js'));
 const { STRINGS } = await import(join(site, 'akun/i18n.js'));
+const { parseTheme, isDark, toggled, initialOf } = await import(join(site, 'akun/theme.js'));
 
 const reply = (status, body) => async () => ({ ok: status >= 200 && status < 300, status, json: async () => body });
 const spy = (impl) => { const calls = []; const f = async (u, o) => { calls.push({ u, o, body: JSON.parse(o.body) }); return impl(u, o); }; f.calls = calls; return f; };
@@ -101,7 +102,7 @@ test('the page cannot reach anything but Supabase and ships no inline code', () 
 
 test('every text key used by the page exists', () => {
   const src = readFileSync(join(site, 'akun/akun.js'), 'utf8') + readFileSync(join(site, 'akun/index.html'), 'utf8');
-  const used = new Set([...src.matchAll(/\bt\('([\w.]+)'/g), ...src.matchAll(/data-t="([\w.]+)"/g), ...src.matchAll(/`err\.\$\{/g)].map((m) => m[1]).filter(Boolean));
+  const used = new Set([...src.matchAll(/\bt\('([\w.]+)'/g), ...src.matchAll(/data-t="([\w.]+)"/g), ...src.matchAll(/data-t-label="([\w.]+)"/g), ...src.matchAll(/`err\.\$\{/g)].map((m) => m[1]).filter(Boolean));
   for (const k of used) assert.ok(k in STRINGS.id, k);
   for (const e of ['rate', 'badCode', 'badInput', 'server', 'network', 'link', 'other']) assert.ok(`err.${e}` in STRINGS.id, e);
 });
@@ -129,4 +130,34 @@ test('getUser returns the profile fields the page shows', async () => {
   assert.deepEqual(await mk(reply(200, body)).getUser('tok'), { ok: true, user: { email: 'a@b.id', id: 'u-1', createdAt: '2026-11-24T01:00:00Z', lastSignInAt: '2026-11-24T02:00:00Z', providers: ['email', 'google'] } });
   const single = { ...body, app_metadata: { provider: 'email' } };
   assert.deepEqual((await mk(reply(200, single)).getUser('tok')).user.providers, ['email']);
+});
+
+test('theme: null follows the system, an explicit choice wins, the switch flips what is shown', () => {
+  assert.equal(parseTheme('dark'), 'dark');
+  assert.equal(parseTheme('light'), 'light');
+  for (const bad of [null, undefined, '', 'auto', 'DARK']) assert.equal(parseTheme(bad), null, String(bad));
+  assert.equal(isDark(null, true), true);
+  assert.equal(isDark(null, false), false);
+  assert.equal(isDark('light', true), false);
+  assert.equal(isDark('dark', false), true);
+  assert.equal(toggled(null, true), 'light');
+  assert.equal(toggled(null, false), 'dark');
+  assert.equal(toggled('dark', false), 'light');
+  assert.equal(toggled('light', true), 'dark');
+});
+
+test('avatar letter comes from the email', () => {
+  assert.equal(initialOf('rina@contoh.id'), 'R');
+  assert.equal(initialOf('  sari@x.id'), 'S');
+  assert.equal(initialOf(''), '?');
+  assert.equal(initialOf(null), '?');
+});
+
+test('the menu offers no purchase link and keeps the page free of inline code', () => {
+  const js = readFileSync(join(site, 'akun/akun.js'), 'utf8');
+  assert.match(js, /href: '\.\.\/paket\.html'/);
+  assert.doesNotMatch(js, /play\.google|market:\/\/|billing|checkout/i);
+  const html = readFileSync(join(site, 'akun/index.html'), 'utf8');
+  assert.match(html, /id="acct-btn"[^>]*data-t-label="menu\.account"/);
+  assert.doesNotMatch(html, /\sstyle=/);
 });
