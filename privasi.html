@@ -18,7 +18,7 @@
   </header>
   <main id="isi" class="wrap narrow">
     <h1>Kebijakan Privasi</h1>
-    <p class="meta">Berlaku sejak 22 November 2026 · menggantikan versi 15 November 2026 · <a href="#english">English version</a></p>
+    <p class="meta">Berlaku sejak 24 November 2026 · menggantikan versi 22 November 2026 · <a href="#english">English version</a></p>
 
     <p>Rancob adalah aplikasi untuk merancang, mencatat, dan menganalisis percobaan lapangan pertanian, dikembangkan oleh Nazri Hasanulfuad ("kami"). Kebijakan ini menjelaskan data apa yang diproses aplikasi, di mana data itu disimpan, siapa yang memprosesnya, dan hak Anda.</p>
 
@@ -52,9 +52,10 @@
     <h2 id="web">2. Rancob Web (versi browser)</h2>
     <p>Rancob Web (<a href="app/">rancob.agronominion.com/app</a>) adalah versi beta yang berjalan di browser. Di versi ini:</p>
     <ul>
-      <li><strong>Data percobaan</strong> (rancangan, perlakuan, nilai pengamatan, judul, tanaman, lokasi) disimpan hanya di penyimpanan lokal browser Anda (localStorage). Data itu tidak dikirim ke server kami atau pihak lain, dan tidak ada akun.</li>
+      <li><strong>Data percobaan</strong> (rancangan, perlakuan, nilai pengamatan, judul, tanaman, lokasi) disimpan hanya di penyimpanan lokal browser Anda (localStorage). Data itu tidak dikirim ke server kami atau pihak lain, dan Rancob Web sendiri tidak memakai akun.</li>
       <li>Perhitungan berjalan di browser Anda. Halaman ini memakai kebijakan keamanan konten yang melarang kode halaman membuat permintaan jaringan, sehingga data Anda tidak bisa terkirim keluar dari halaman.</li>
       <li>Rancob Web tidak memakai cookie, analitik, iklan, atau pelacak.</li>
+      <li><strong>Halaman akun</strong> (<a href="akun/">rancob.agronominion.com/akun</a>) terpisah dari Rancob Web dan bersifat opsional. Di sana Anda dapat masuk atau mendaftar dengan email (kode sekali pakai, tanpa kata sandi). Alamat email yang Anda ketik dikirim ke Supabase untuk membuat akun dan mengirim kode lewat Resend; data akun diproses seperti dijelaskan di bagian 3. Halaman akun belum menyimpan data percobaan ke akun. Token masuk disimpan di penyimpanan sesi browser (hilang saat tab ditutup) dan pilihan bahasa di penyimpanan lokal. Halaman ini juga tidak memakai cookie, analitik, iklan, atau pelacak.</li>
       <li>Data hilang jika Anda menghapus data situs, memakai mode privat, atau browser membersihkan penyimpanan. Hapus percobaan lewat tab Info, atau hapus data situs di pengaturan browser. File cadangan (.json) dan CSV yang Anda unduh tersimpan di perangkat Anda dan tidak tercakup di sini.</li>
       <li>Situs ini disajikan oleh GitHub Pages. Saat Anda membuka halaman mana pun di situs ini, GitHub dapat mencatat alamat IP dan data permintaan standar sesuai kebijakan privasi GitHub. Ini tidak mencakup isi percobaan Anda.</li>
     </ul>
@@ -92,6 +93,7 @@
     <p>Kami tidak menjual atau menyewakan data. Data diproses oleh penyedia berikut atas nama kami, hanya untuk menjalankan fitur yang Anda pakai:</p>
     <ul>
       <li><strong>Supabase</strong>: login, basis data akun dan percobaan yang disinkronkan, penyimpanan foto.</li>
+      <li><strong>Resend</strong>: mengirim email berisi kode masuk ke alamat email Anda.</li>
       <li><strong>PowerSync</strong>: penyaluran data percobaan antara server dan HP.</li>
       <li><strong>Google</strong>: login dengan Google (jika Anda memilihnya) dan pembayaran Google Play.</li>
       <li><strong>RevenueCat</strong>: status langganan Pro.</li>
@@ -137,13 +139,13 @@
 
     <section class="lang" id="english" lang="en">
       <h1>Privacy Policy</h1>
-      <p class="meta">Effective 22 November 2026 · replaces the version of 15 November 2026</p>
+      <p class="meta">Effective 24 November 2026 · replaces the version of 22 November 2026</p>
       <p>Rancob is an app for planning, recording and analyzing agricultural field experiments, developed by Nazri Hasanulfuad ("we").</p>
       <div class="card soft"><strong>In short:</strong> without an account, your experiment data and photos stay on your phone. Accounts are optional and only used for multi-device sync and collaboration; if you sign in and use them, synced experiments and their photos are also stored on servers. No ads, no ad trackers, and we never sell your data.</div>
       <h2>Using Rancob without an account</h2>
       <p>Everything you enter (experiments, treatments, plot layouts, observations, notes, field journal, names and locations) is stored in a database on your device and is not sent to our servers. Camera or gallery access is requested only when you add a photo. ZIP backups and CSV exports are created only when you ask, and you decide where they go.</p>
       <h2>Rancob Web (browser version)</h2>
-      <p>Rancob Web is a beta that runs in the browser. Experiment data (layouts, treatments, observations, titles, crop, location) is stored only in your browser's local storage; it is not sent to us or anyone else, and there is no account. Calculations run in your browser, and the page's content security policy forbids network requests from page code. Rancob Web uses no cookies, analytics, ads or trackers. Data is lost if you clear site data, use a private window, or the browser clears storage; delete experiments in the Info tab or clear site data in your browser settings. Backup (.json) and CSV files you download stay on your device and are outside this policy. This site is served by GitHub Pages, which may log IP addresses and standard request data under GitHub's privacy statement; this does not include the content of your experiments.</p>
+      <p>Rancob Web is a beta that runs in the browser. Experiment data (layouts, treatments, observations, titles, crop, location) is stored only in your browser's local storage; it is not sent to us or anyone else, and Rancob Web itself does not use accounts. Calculations run in your browser, and the page's content security policy forbids network requests from page code. Rancob Web uses no cookies, analytics, ads or trackers. The optional <a href="akun/">account page</a> (rancob.agronominion.com/akun) is separate from Rancob Web: you can sign in or sign up there with an email code (no password). The email address you type is sent to Supabase to create the account and to Resend to deliver the code; account data is processed as described under Accounts below. The account page does not yet save experiment data to your account, keeps its sign-in token in browser session storage (cleared when the tab closes) and your language choice in local storage, and uses no cookies, analytics, ads or trackers. Data is lost if you clear site data, use a private window, or the browser clears storage; delete experiments in the Info tab or clear site data in your browser settings. Backup (.json) and CSV files you download stay on your device and are outside this policy. This site is served by GitHub Pages, which may log IP addresses and standard request data under GitHub's privacy statement; this does not include the content of your experiments.</p>
       <h2>Accounts, sync and cloud photos</h2>
       <p>Sync and collaboration are Pro features in testing, announced in the app when available. They are active only if you sign in with an email code (no password) or Google. We then process: account data (email, random account ID, creation and last sign-in time, the linked Google identity if used); the experiments you sync, including their <strong>revision history</strong> (who changed what and when); uploaded photos (up to 20 MB each) with size and hash; the emails and roles of people you invite; and your Pro status. On the device, each account's data is kept apart from guest data. The legal basis is performing the service you request (Indonesian Law No. 27 of 2022 on Personal Data Protection).</p>
       <h2>Collaboration</h2>
@@ -151,7 +153,7 @@
       <h2>Pro subscription</h2>
       <p>Payments are processed by Google Play; we never receive card details. RevenueCat checks subscription status and receives the purchase token, product, transaction time and status from Google Play. RevenueCat knows you by a random ID; when you are signed in it is your random account ID so Pro follows your account. We do not send your name or email to RevenueCat. The ID is shown as the Support ID in Profile.</p>
       <h2>Processors</h2>
-      <p>Supabase (sign-in, database, photo storage), PowerSync (moving experiment data between server and devices), Google (Google sign-in, Google Play billing) and RevenueCat (subscription status). Their servers may be outside Indonesia, so your data may be transferred abroad. Connections use HTTPS.</p>
+      <p>Supabase (sign-in, database, photo storage), Resend (sending sign-in code emails), PowerSync (moving experiment data between server and devices), Google (Google sign-in, Google Play billing) and RevenueCat (subscription status). Their servers may be outside Indonesia, so your data may be transferred abroad. Connections use HTTPS.</p>
       <h2>Retention and deletion</h2>
       <p>On the device, data stays until you delete it or the app. In the cloud, account and synced data are kept while your account exists. For a deleted experiment, the server keeps a deletion marker so other devices remove it; its revision history and photos are currently not purged automatically, and you can ask us by email to delete them permanently. In-app account deletion is not available yet; see <a href="hapus-data.html#english">deleting your data</a>.</p>
       <h2>Security</h2>
