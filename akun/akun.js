@@ -2,11 +2,13 @@
 // Text from users only goes through textContent/attributes (see ../app/js/dom.js).
 import { h, append, clear } from '../app/js/dom.js';
 import { createAuth, validEmail, validCode, cleanEmail, cleanCode, parseAuthHash } from './auth.js';
+import { createProClient, isProActive } from './pro.js';
 import { SUPABASE_URL, SUPABASE_KEY } from './config.js';
 import { STRINGS } from './i18n.js';
 import { parseTheme, isDark, toggled, initialOf } from './theme.js';
 
 const auth = createAuth({ url: SUPABASE_URL, key: SUPABASE_KEY });
+const proClient = createProClient({ url: SUPABASE_URL, key: SUPABASE_KEY });
 const root = document.getElementById('akun');
 const RESEND_SECONDS = 60;
 
@@ -20,7 +22,11 @@ let lang = safe(() => localStorage.getItem('rancob.akun.lang')) || ((navigator.l
 if (!STRINGS[lang]) lang = 'id';
 const t = (k, vars = {}) => (STRINGS[lang][k] ?? STRINGS.id[k] ?? k).replace(/\{(\w+)\}/g, (m, n) => (vars[n] ?? m));
 
-const state = { mode: 'in', step: 'email', email: '', msg: null, busy: false, cooldown: 0, agreed: false, user: session.load(), profile: null };
+const state = {
+  mode: 'in', step: 'email', email: '', msg: null, busy: false, cooldown: 0, agreed: false,
+  user: session.load(), profile: null,
+  pro: { loading: false, proUntil: null, payingPlan: null, msg: null },
+};
 let timer = null;
 
 function startCooldown() {
@@ -131,28 +137,94 @@ function profileRows() {
 async function loadProfile() {
   if (!state.user) return;
   const r = await auth.getUser(state.user.token);
-  if (r.ok) { state.profile = r.user; render(); return; }
+  if (r.ok) { state.profile = r.user; render(); loadPro(); return; }
   if (r.error === 'badCode') {
     state.user = null; state.profile = null; session.save(null); setMsg('error', 'err.expired'); render();
   }
 }
 
+async function loadPro() {
+  if (!state.user) return;
+  state.pro.loading = true;
+  render();
+  const r = await proClient.getEntitlement(state.user.token);
+  state.pro.loading = false;
+  if (r.ok) state.pro.proUntil = r.proUntil;
+  render();
+}
+
+async function payPlan(planId) {
+  if (!state.user || state.pro.payingPlan) return;
+  state.pro.payingPlan = planId;
+  state.pro.msg = null;
+  render();
+  const r = await proClient.startWebOrder(state.user.token, planId);
+  state.pro.payingPlan = null;
+  if (!r.ok) {
+    if (r.error === 'badCode') {
+      state.user = null; state.profile = null; session.save(null); setMsg('error', 'err.expired'); render(); return;
+    }
+    state.pro.msg = { kind: 'error', key: r.error === 'network' ? 'err.network' : 'pro.errServer' };
+    render();
+    return;
+  }
+  window.location.assign(r.redirectUrl);
+}
+
 async function signOut() {
   const tok = state.user?.token;
-  state.user = null; state.profile = null; session.save(null); state.step = 'email'; state.email = ''; render();
+  state.user = null; state.profile = null; state.pro = { loading: false, proUntil: null, payingPlan: null, msg: null };
+  session.save(null); state.step = 'email'; state.email = ''; render();
   if (tok) await auth.signOut(tok);
 }
 
+function proCard() {
+  const active = isProActive(state.pro.proUntil);
+  const statusText = state.pro.loading
+    ? t('pro.statusLoading')
+    : active
+      ? t('pro.statusActive', { until: fmtDate(state.pro.proUntil) })
+      : t('pro.statusFree');
+  const plan = (id, nameKey, priceKey, durKey, best) => {
+    const busy = state.pro.payingPlan === id;
+    return h('div', { class: `plan-card${best ? ' best' : ''}` },
+      h('div', { class: 'plan-top' },
+        h('span', { class: 'plan-name' }, t(nameKey)),
+        best ? h('span', { class: 'plan-tag' }, t('pro.best')) : null),
+      h('div', { class: 'plan-price' }, t(priceKey)),
+      h('div', { class: 'plan-dur' }, t(durKey)),
+      h('button', {
+        type: 'button',
+        class: `btn ${best ? 'primary' : 'ghost'}`,
+        disabled: Boolean(state.pro.payingPlan),
+        onclick: () => payPlan(id),
+      }, busy ? t('pro.paying') : t('pro.payBtn')));
+  };
+  return h('div', { class: 'card pro-card', id: 'pro' },
+    h('div', { class: 'pro-head' },
+      h('h2', null, t('pro.title')),
+      h('span', { class: `pro-badge${active ? ' active' : ''}` }, statusText)),
+    state.pro.msg ? h('p', { class: `msg ${state.pro.msg.kind}`, role: state.pro.msg.kind === 'error' ? 'alert' : 'status' }, t(state.pro.msg.key)) : null,
+    h('p', { class: 'muted small' }, t('pro.desc')),
+    h('div', { class: 'pro-grid' },
+      plan('pro_semester', 'pro.semesterName', 'pro.semesterPrice', 'pro.semesterDur', false),
+      plan('pro_year', 'pro.yearName', 'pro.yearPrice', 'pro.yearDur', true)),
+    h('div', { class: 'row' },
+      h('button', { type: 'button', class: 'btn ghost', disabled: state.pro.loading, onclick: loadPro }, t('pro.refresh'))));
+}
+
 function signedIn() {
-  return h('div', { class: 'card' },
-    h('h2', null, t('prof.title')),
-    h('p', { class: 'who-line' }, t('in.as', { email: state.user.email })),
-    profileRows(),
-    h('p', { class: 'muted' }, t('in.body')),
-    h('div', { class: 'actions' },
-      h('a', { class: 'btn primary', href: '../app/' }, t('in.app')),
-      h('button', { type: 'button', class: 'btn ghost', onclick: signOut }, t('btn.signout'))),
-    h('p', { class: 'small' }, h('a', { href: '../hapus-data.html' }, t('in.delete'))));
+  return h('div', null,
+    h('div', { class: 'card' },
+      h('h2', null, t('prof.title')),
+      h('p', { class: 'who-line' }, t('in.as', { email: state.user.email })),
+      profileRows(),
+      h('p', { class: 'muted' }, t('in.body')),
+      h('div', { class: 'actions' },
+        h('a', { class: 'btn primary', href: '../app/' }, t('in.app')),
+        h('button', { type: 'button', class: 'btn ghost', onclick: signOut }, t('btn.signout'))),
+      h('p', { class: 'small' }, h('a', { href: '../hapus-data.html' }, t('in.delete')))),
+    proCard());
 }
 
 function render() {
@@ -301,6 +373,13 @@ applyStatic();
 // Arriving from the button in the email: Supabase has verified the address and sent us back here
 // with the session (or an error) in the URL hash. Use it, then remove it from the address bar.
 async function init() {
+  const params = new URLSearchParams(location.search);
+  if (params.get('payment') === 'finish') {
+    state.pro.msg = { kind: 'info', key: 'pro.returned' };
+    params.delete('payment');
+    const q = params.toString();
+    history.replaceState(null, '', location.pathname + (q ? `?${q}` : '') + location.hash);
+  }
   const fromLink = parseAuthHash(location.hash);
   if (fromLink) history.replaceState(null, '', location.pathname + location.search);
   if (fromLink?.token) {

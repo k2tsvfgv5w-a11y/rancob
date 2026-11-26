@@ -10,6 +10,7 @@ const site = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { createAuth, classify, validEmail, validCode, cleanCode, cleanEmail, parseAuthHash } = await import(join(site, 'akun/auth.js'));
 const { STRINGS } = await import(join(site, 'akun/i18n.js'));
 const { parseTheme, isDark, toggled, initialOf } = await import(join(site, 'akun/theme.js'));
+const { createProClient, isProActive, isTrustedMidtransUrl } = await import(join(site, 'akun/pro.js'));
 
 const reply = (status, body) => async () => ({ ok: status >= 200 && status < 300, status, json: async () => body });
 const spy = (impl) => { const calls = []; const f = async (u, o) => { calls.push({ u, o, body: JSON.parse(o.body) }); return impl(u, o); }; f.calls = calls; return f; };
@@ -153,11 +154,48 @@ test('avatar letter comes from the email', () => {
   assert.equal(initialOf(null), '?');
 });
 
-test('the menu offers no purchase link and keeps the page free of inline code', () => {
+test('the menu keeps paket.html link and keeps the page free of inline code', () => {
   const js = readFileSync(join(site, 'akun/akun.js'), 'utf8');
   assert.match(js, /href: '\.\.\/paket\.html'/);
-  assert.doesNotMatch(js, /play\.google|market:\/\/|billing|checkout/i);
+  assert.doesNotMatch(js, /play\.google|market:\/\//i);
   const html = readFileSync(join(site, 'akun/index.html'), 'utf8');
   assert.match(html, /id="acct-btn"[^>]*data-t-label="menu\.account"/);
   assert.doesNotMatch(html, /\sstyle=/);
+});
+
+test('pro client reads entitlement and validates trusted Midtrans redirect URLs', async () => {
+  assert.equal(isProActive('2027-06-01T00:00:00Z', new Date('2026-11-27T00:00:00Z')), true);
+  assert.equal(isProActive('2026-01-01T00:00:00Z', new Date('2026-11-27T00:00:00Z')), false);
+  assert.equal(isProActive(null), false);
+
+  assert.equal(isTrustedMidtransUrl('https://app.sandbox.midtrans.com/snap/v4/redirection/abc'), true);
+  assert.equal(isTrustedMidtransUrl('https://app.midtrans.com/snap/v4/redirection/abc'), true);
+  assert.equal(isTrustedMidtransUrl('https://evil.example.com/snap'), false);
+  assert.equal(isTrustedMidtransUrl('javascript:alert(1)'), false);
+
+  const entClient = createProClient({
+    url: 'https://x.supabase.co/',
+    key: 'sb_publishable_test',
+    fetch: reply(200, [{ pro_until: '2027-06-01T00:00:00Z' }]),
+  });
+  assert.deepEqual(await entClient.getEntitlement('tok'), { ok: true, proUntil: '2027-06-01T00:00:00Z' });
+
+  const f = spy(reply(200, { order_id: 'RANCOB-1', redirect_url: 'https://app.sandbox.midtrans.com/snap/v4/redirection/xyz', sandbox: true }));
+  const pro = createProClient({ url: 'https://x.supabase.co/', key: 'sb_publishable_test', fetch: f });
+  assert.deepEqual(await pro.startWebOrder('tok', 'pro_year'), {
+    ok: true,
+    orderId: 'RANCOB-1',
+    redirectUrl: 'https://app.sandbox.midtrans.com/snap/v4/redirection/xyz',
+    sandbox: true,
+  });
+  assert.equal(f.calls[0].u, 'https://x.supabase.co/functions/v1/create-web-checkout');
+  assert.deepEqual(f.calls[0].body, { plan_id: 'pro_year' });
+
+  const badRedirect = createProClient({
+    url: 'https://x.supabase.co/',
+    key: 'sb_publishable_test',
+    fetch: reply(200, { order_id: 'RANCOB-2', redirect_url: 'https://evil.example.com/' }),
+  });
+  assert.deepEqual(await badRedirect.startWebOrder('tok', 'pro_semester'), { ok: false, error: 'other' });
+  assert.deepEqual(await pro.startWebOrder('tok', 'unknown'), { ok: false, error: 'badInput' });
 });
