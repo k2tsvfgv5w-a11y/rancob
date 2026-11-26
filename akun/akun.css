@@ -135,4 +135,8 @@ button.btn:disabled { opacity: .5; cursor: not-allowed; }
 .plan-price { font-size: 22px; font-weight: 700; color: var(--text); }
 .plan-dur { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
 .plan-card .btn { margin-top: auto; width: 100%; }
+.pro-extend { margin-top: 4px; }
+.pro-extend > summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--muted); padding: 6px 0; }
+.pro-extend > summary:hover { color: var(--primary); }
+.pro-extend[open] > summary { margin-bottom: 10px; }
 .am-pro:focus-visible, .am-item:focus-visible, .am-out:focus-visible, .am-del:focus-visible, .sw:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }

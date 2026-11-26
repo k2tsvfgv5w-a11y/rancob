@@ -207,15 +207,20 @@ function proCard() {
         onclick: () => payPlan(id),
       }, busy ? t('pro.paying') : t('pro.payBtn')));
   };
+  const plansGrid = h('div', { class: 'pro-grid' },
+    plan('pro_semester', 'pro.semesterName', 'pro.semesterPrice', 'pro.semesterDur', false),
+    plan('pro_year', 'pro.yearName', 'pro.yearPrice', 'pro.yearDur', true));
   return h('div', { class: 'card pro-card', id: 'pro' },
     h('div', { class: 'pro-head' },
       h('h2', null, t('pro.title')),
       h('span', { class: `pro-badge${active ? ' active' : ''}` }, statusText)),
     state.pro.msg ? h('p', { class: `msg ${state.pro.msg.kind}`, role: state.pro.msg.kind === 'error' ? 'alert' : 'status' }, t(state.pro.msg.key)) : null,
-    h('p', { class: 'muted small' }, t('pro.desc')),
-    h('div', { class: 'pro-grid' },
-      plan('pro_semester', 'pro.semesterName', 'pro.semesterPrice', 'pro.semesterDur', false),
-      plan('pro_year', 'pro.yearName', 'pro.yearPrice', 'pro.yearDur', true)),
+    h('p', { class: 'muted small' }, t(active ? 'pro.activeDesc' : 'pro.desc')),
+    active
+      ? h('details', { class: 'pro-extend' },
+        h('summary', null, t('pro.extend')),
+        plansGrid)
+      : plansGrid,
     h('div', { class: 'row' },
       h('button', { type: 'button', class: 'btn ghost', disabled: state.pro.loading, onclick: loadPro }, t('pro.refresh'))));
 }
