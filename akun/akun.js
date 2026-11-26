@@ -147,6 +147,13 @@ async function loadPro() {
   if (!state.user) return;
   state.pro.loading = true;
   render();
+  const synced = await proClient.syncOrders(state.user.token);
+  if (synced.ok) {
+    state.pro.proUntil = synced.proUntil;
+    state.pro.loading = false;
+    render();
+    return;
+  }
   const r = await proClient.getEntitlement(state.user.token);
   state.pro.loading = false;
   if (r.ok) state.pro.proUntil = r.proUntil;

@@ -198,4 +198,9 @@ test('pro client reads entitlement and validates trusted Midtrans redirect URLs'
   });
   assert.deepEqual(await badRedirect.startWebOrder('tok', 'pro_semester'), { ok: false, error: 'other' });
   assert.deepEqual(await pro.startWebOrder('tok', 'unknown'), { ok: false, error: 'badInput' });
+
+  const syncSpy = spy(reply(200, { completed: 1, pro_until: '2027-11-27T00:00:00Z' }));
+  const syncClient = createProClient({ url: 'https://x.supabase.co/', key: 'sb_publishable_test', fetch: syncSpy });
+  assert.deepEqual(await syncClient.syncOrders('tok'), { ok: true, completed: 1, proUntil: '2027-11-27T00:00:00Z' });
+  assert.deepEqual(syncSpy.calls[0].body, { action: 'sync' });
 });

@@ -49,6 +49,28 @@ export function createProClient({ url, key, fetch: f = globalThis.fetch }) {
       };
     },
 
+    /** Asks the server to verify pending Midtrans orders directly via Status API. */
+    async syncOrders(token) {
+      let res;
+      try {
+        res = await f(`${origin}/functions/v1/create-web-checkout`, {
+          method: 'POST',
+          headers: headers(token),
+          body: JSON.stringify({ action: 'sync' }),
+        });
+      } catch {
+        return { ok: false, error: 'network' };
+      }
+      if (res.status === 401 || res.status === 403) return { ok: false, error: 'badCode' };
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data) return { ok: false, error: 'server' };
+      return {
+        ok: true,
+        completed: Number(data.completed ?? 0),
+        proUntil: typeof data.pro_until === 'string' ? data.pro_until : null,
+      };
+    },
+
     /** Starts a Midtrans Snap session (QRIS / e-wallet / VA) for planId. */
     async startWebOrder(token, planId) {
       if (!PRO_PLANS.some((p) => p.id === planId)) {
