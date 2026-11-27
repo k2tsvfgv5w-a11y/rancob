@@ -1,6 +1,6 @@
 # Rancob – situs
 
-Situs publik Rancob (https://rancob.agronominion.com, GitHub Pages dari branch `main`):
+Situs publik Rancob (https://rancob.id, GitHub Pages dari branch `main`):
 profil produk, paket, FAQ, kontak, kebijakan privasi, syarat penggunaan, dan cara menghapus data.
 Situs statis tanpa build; cukup HTML + `style.css`.
 
@@ -99,7 +99,7 @@ templat "Magic Link"; tab **Masuk** tidak membuat akun dan tidak membocorkan apa
   di halaman ini (`data-theme` di `akun.css`, pilihan di `localStorage`); tanpa pilihan, halaman ikut sistem.
 - Panjang kode mengikuti pengaturan Supabase (*Email OTP Length*, saat ini 8 digit); halaman menerima 6–10 angka.
 - **Tombol di email** mengarah ke halaman ini: Supabase memverifikasi alamat lalu mengalihkan ke **Site URL**
-  proyek (`https://rancob.agronominion.com/akun/`, diatur di Authentication → URL Configuration), dengan sesi di
+  proyek (`https://rancob.id/akun/`, diatur di Authentication → URL Configuration), dengan sesi di
   `#access_token`. `akun.js` membacanya, menghapusnya dari bilah alamat, dan menampilkan "Anda sudah masuk";
   tautan yang hangus menampilkan pesan minta kode baru. Email yang diminta dari aplikasi Android tetap kembali
   ke `id.rancob.app://auth-callback`. Kode dan tombol memakai satu token: pakai salah satu saja.
