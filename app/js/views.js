@@ -1,8 +1,9 @@
 // Rancob Web views. Each view returns a DOM node; `ctx` carries the shared services.
 import * as M from './model.js';
-import { h, append, clear, download, slug } from './dom.js';
+import { h, svgEl, append, clear, download, slug } from './dom.js';
 
 const TESTS = ['dmrt', 'tukey', 'lsd'];
+const SERIES_COLORS = ['#1f6b3a', '#b45309', '#1d4ed8', '#9f1239', '#6d28d9', '#0f766e', '#c2410c', '#4b5563'];
 const NEW_ROW = () => ({ code: '', description: '' });
 
 export function createViews(ctx) {
@@ -22,7 +23,7 @@ export function createViews(ctx) {
 
   function selFor(e) {
     let s = sels.get(e.id);
-    if (!s) sels.set(e.id, (s = { sid: null, pid: null, test: 'dmrt', alpha: 0.05, view: null, focusPlot: null }));
+    if (!s) sels.set(e.id, (s = { sid: null, pid: null, test: 'dmrt', alpha: 0.05, view: null, focusPlot: null, transform: 'none', nonParametric: false, showSe: true, focusTrt: null }));
     const sessions = sortedSessions(e);
     if (!sessions.some((x) => x.id === s.sid)) s.sid = sessions[0]?.id ?? null;
     if (!e.parameters.some((x) => x.id === s.pid)) s.pid = e.parameters[0]?.id ?? null;
@@ -293,9 +294,9 @@ export function createViews(ctx) {
   function pickers(e, s, { analysis = false } = {}) {
     const sessions = sortedSessions(e);
     return h('div', { class: 'row-2 pickers' },
-      field(t('entry.session'), h('select', { onchange: (ev) => { s.sid = ev.target.value; ctx.rerender(); } },
+      field(t('entry.session'), h('select', { onchange: (ev) => { s.sid = ev.target.value; s.transform = 'none'; s.nonParametric = false; ctx.rerender(); } },
         sessions.map((x) => h('option', { value: x.id, selected: s.sid === x.id }, sessionLabel(e, x))))),
-      field(t('entry.parameter'), h('select', { onchange: (ev) => { s.pid = ev.target.value; ctx.rerender(); } },
+      field(t('entry.parameter'), h('select', { onchange: (ev) => { s.pid = ev.target.value; s.transform = 'none'; s.nonParametric = false; s.focusTrt = null; ctx.rerender(); } },
         e.parameters.map((p) => h('option', { value: p.id, selected: s.pid === p.id }, p.unit ? `${p.name} (${p.unit})` : p.name)))));
   }
 
@@ -430,15 +431,18 @@ export function createViews(ctx) {
         h('td', { class: 'n' }, row.fCrit01 === null ? '' : f.stat(row.fCrit01)))))));
   }
 
-  function rankedTable(e, ph, unit, descOf) {
+  function rankedTable(e, ph, unit, descOf, originalMeans = null) {
     const f = fmt();
     return tableWrap(h('table', { class: 'plain posthoc' },
       h('caption', {}, t('posthoc.title', { test: t(`analysis.test.${ph.test}`), alpha: alphaText(ph.alpha) })),
       h('thead', {}, h('tr', {}, h('th', { scope: 'col' }, t('posthoc.treatment')), h('th', { scope: 'col', class: 'n' }, `${t('posthoc.mean')}${unit ? ` (${unit})` : ''}`), h('th', { scope: 'col' }, t('posthoc.letters')))),
-      h('tbody', {}, ph.ranked.map((x) => h('tr', {},
-        h('th', { scope: 'row' }, h('strong', {}, x.trt), descOf(x.trt) ? h('span', { class: 'muted small' }, ` ${descOf(x.trt)}`) : null),
-        h('td', { class: 'n' }, f.stat(x.mean)),
-        h('td', { class: 'letters' }, x.letters))))));
+      h('tbody', {}, ph.ranked.map((x) => {
+        const displayMean = originalMeans && originalMeans[x.trt] !== undefined ? originalMeans[x.trt] : x.mean;
+        return h('tr', {},
+          h('th', { scope: 'row' }, h('strong', {}, x.trt), descOf(x.trt) ? h('span', { class: 'muted small' }, ` ${descOf(x.trt)}`) : null),
+          h('td', { class: 'n' }, f.stat(displayMean)),
+          h('td', { class: 'letters' }, x.letters));
+      }))));
   }
 
   function twoWayTable(e, tb) {
@@ -483,6 +487,7 @@ export function createViews(ctx) {
       anovaTable(e, r),
       h('p', { class: 'muted small' }, e.factors.map((x) => t('fact.factorLine', { f: x.code, name: x.name })).join(' · ')),
       h('p', { class: 'muted small' }, t('anova.cvLine', { cv: f.num(r.cv, 1), mean: f.stat(r.grandMean), unit: p.unit })),
+      r.transform && r.transform !== 'none' ? h('p', { class: 'muted small' }, t('transform.note', { name: t(`transform.${r.transform}`) })) : null,
       h('div', { class: sig.length ? 'card soft strong' : 'card note strong' }, sig.length ? t('fact.interactionSignificant', { list: sig.map(label).join(', ') }) : t('fact.interactionNot')),
       h('div', { class: 'chips', role: 'group', 'aria-label': t('analysis.title') },
         r.interactionSources.map((x) => h('button', { type: 'button', class: 'chip', 'aria-pressed': view === x, onclick: () => { s.view = x; ctx.rerender(); } }, `${label(x)}${sig.includes(x) ? ' *' : ''}`)),
@@ -493,31 +498,143 @@ export function createViews(ctx) {
   function singleResults(e, r, s, p) {
     const f = fmt();
     const ph = r.postHoc;
+    const isTx = r.transform && r.transform !== 'none';
     return h('div', {},
       anovaTable(e, r),
       h('p', { class: 'muted small' }, t('anova.cvLine', { cv: f.num(r.cv, 1), mean: f.stat(r.grandMean), unit: p.unit })),
       r.treatment.sig === 'ns' ? h('div', { class: 'card note small' }, t('anova.notSignificant')) : null,
-      rankedTable(e, ph, p.unit, (code) => treatmentDesc(e, code)),
-      h('p', { class: 'muted small' }, t('posthoc.sameLetter'), s.test !== 'dmrt' && ph.criticalRanges[0] !== undefined ? ` ${t('posthoc.critical', { range: f.stat(ph.criticalRanges[0]), unit: p.unit })}` : ''));
+      rankedTable(e, ph, p.unit, (code) => treatmentDesc(e, code), isTx ? r.originalMeans : null),
+      isTx ? h('p', { class: 'muted small' }, t('transform.note', { name: t(`transform.${r.transform}`) })) : null,
+      h('p', { class: 'muted small' }, t('posthoc.sameLetter'), !isTx && s.test !== 'dmrt' && ph.criticalRanges[0] !== undefined ? ` ${t('posthoc.critical', { range: f.stat(ph.criticalRanges[0]), unit: p.unit })}` : ''));
+  }
+
+  function kruskalResults(e, k, p) {
+    const f = fmt();
+    const sigText = k.sig === 'ns' ? t('anova.ns') : k.sig;
+    return h('div', {},
+      h('h3', {}, t('kruskal.title')),
+      h('div', { class: k.sig === 'ns' ? 'card note strong' : 'card soft strong' },
+        t('kruskal.stat', { h: f.stat(k.h), df: k.df, p: f.num(k.p, 4) }), ' · ', sigText),
+      tableWrap(h('table', { class: 'plain posthoc' },
+        h('caption', {}, t('kruskal.dunn', { alpha: alphaText(k.alpha) })),
+        h('thead', {}, h('tr', {},
+          h('th', { scope: 'col' }, t('posthoc.treatment')),
+          h('th', { scope: 'col', class: 'n' }, `${t('kruskal.median')}${p.unit ? ` (${p.unit})` : ''}`),
+          h('th', { scope: 'col', class: 'n' }, t('kruskal.rank')),
+          h('th', { scope: 'col' }, t('posthoc.letters')))),
+        h('tbody', {}, k.groups.map((g) => h('tr', {},
+          h('th', { scope: 'row' }, h('strong', {}, g.trt), treatmentDesc(e, g.trt) ? h('span', { class: 'muted small' }, ` ${treatmentDesc(e, g.trt)}`) : null),
+          h('td', { class: 'n' }, f.stat(g.median)),
+          h('td', { class: 'n' }, f.num(g.meanRank, 1)),
+          h('td', { class: 'letters' }, g.letters)))))),
+      h('p', { class: 'muted small' }, t('posthoc.sameLetter')));
+  }
+
+  function growthChart(ts, p, s) {
+    if (!ts || !ts.hasTrend || !ts.series.length) return null;
+    const f = fmt();
+    const W = 640, H = 250, padL = 52, padR = 18, padT = 16, padB = 34;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const rawMin = s.showSe ? ts.minYWithSe : ts.minY;
+    const rawMax = s.showSe ? ts.maxYWithSe : ts.maxY;
+    const span = rawMax - rawMin || Math.abs(rawMax) * 0.2 || 1;
+    const yMin = rawMin - span * 0.08;
+    const yMax = rawMax + span * 0.08;
+    const dMin = ts.days[0], dMax = ts.days[ts.days.length - 1];
+    const dSpan = dMax - dMin || 1;
+    const xOf = (d) => padL + ((d - dMin) / dSpan) * plotW;
+    const yOf = (v) => padT + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
+
+    const grid = [];
+    for (let i = 0; i <= 4; i++) {
+      const val = yMin + (i / 4) * (yMax - yMin);
+      const y = yOf(val);
+      grid.push(svgEl('line', { class: 'trend-grid', x1: padL, y1: y.toFixed(1), x2: W - padR, y2: y.toFixed(1) }));
+      grid.push(svgEl('text', { class: 'trend-axis', x: padL - 8, y: (y + 4).toFixed(1), 'text-anchor': 'end' }, f.num(val, Math.abs(yMax - yMin) < 10 ? 1 : 0)));
+    }
+    for (const day of ts.days) {
+      const x = xOf(day);
+      grid.push(svgEl('text', { class: 'trend-axis', x: x.toFixed(1), y: H - 10, 'text-anchor': 'middle' }, `${day} ${t('trend.daySuffix')}`));
+    }
+
+    const lines = [];
+    ts.series.forEach((sr, idx) => {
+      const color = SERIES_COLORS[idx % SERIES_COLORS.length];
+      const dimmed = s.focusTrt && s.focusTrt !== sr.trt;
+      const focused = s.focusTrt === sr.trt;
+      const grp = svgEl('g', { opacity: dimmed ? '0.2' : '1' });
+      const pts = sr.points.map((pt) => `${xOf(pt.day).toFixed(1)},${yOf(pt.mean).toFixed(1)}`).join(' ');
+      if (sr.points.length >= 2) {
+        grp.appendChild(svgEl('polyline', { fill: 'none', stroke: color, 'stroke-width': focused ? '3.2' : '2.2', 'stroke-linejoin': 'round', 'stroke-linecap': 'round', points: pts }));
+      }
+      for (const pt of sr.points) {
+        const cx = xOf(pt.day), cy = yOf(pt.mean);
+        if (s.showSe && pt.se > 0) {
+          const yLo = yOf(pt.mean - pt.se), yHi = yOf(pt.mean + pt.se);
+          grp.appendChild(svgEl('line', { x1: cx.toFixed(1), y1: yLo.toFixed(1), x2: cx.toFixed(1), y2: yHi.toFixed(1), stroke: color, 'stroke-width': '1.4', opacity: '0.75' }));
+          grp.appendChild(svgEl('line', { x1: (cx - 4).toFixed(1), y1: yLo.toFixed(1), x2: (cx + 4).toFixed(1), y2: yLo.toFixed(1), stroke: color, 'stroke-width': '1.4', opacity: '0.75' }));
+          grp.appendChild(svgEl('line', { x1: (cx - 4).toFixed(1), y1: yHi.toFixed(1), x2: (cx + 4).toFixed(1), y2: yHi.toFixed(1), stroke: color, 'stroke-width': '1.4', opacity: '0.75' }));
+        }
+        const dot = svgEl('circle', { cx: cx.toFixed(1), cy: cy.toFixed(1), r: focused ? '4.8' : '3.8', fill: color });
+        dot.appendChild(svgEl('title', {}, `${sr.trt} · ${pt.day} ${t('trend.daySuffix')}: ${f.stat(pt.mean)}${pt.se > 0 ? ` ± ${f.stat(pt.se)}` : ''}${p.unit ? ` ${p.unit}` : ''}`));
+        grp.appendChild(dot);
+      }
+      lines.push(grp);
+    });
+
+    const svg = svgEl('svg', { class: 'trend-svg', viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': t('trend.title') }, ...grid, ...lines);
+    const legend = h('div', { class: 'trend-legend', role: 'group', 'aria-label': t('trend.title') },
+      ts.series.map((sr, idx) => h('button', {
+        type: 'button', class: 'trend-pill', 'aria-pressed': s.focusTrt === sr.trt,
+        onclick: () => { s.focusTrt = s.focusTrt === sr.trt ? null : sr.trt; ctx.rerender(); },
+      }, h('span', { class: `trend-dot s${idx % 8}` }), sr.trt)));
+
+    return h('div', { class: 'card trend-card' },
+      h('div', { class: 'trend-head' },
+        h('div', {}, h('h3', {}, t('trend.title')),
+          h('p', { class: 'muted small trend-sub' }, t('trend.sub', { n: ts.days.length, unit: p.unit ? ` (${p.unit})` : '' }))),
+        h('button', { type: 'button', class: 'chip', 'aria-pressed': s.showSe, onclick: () => { s.showSe = !s.showSe; ctx.rerender(); } }, t('trend.se'))),
+      svg,
+      legend);
   }
 
   function resultText(e, r, s, p) {
     const f = fmt();
-    const lines = [e.title, `${designName(e, true)}; ${p.name}${p.unit ? ` (${p.unit})` : ''}`, '', t('anova.title'),
-      [t('anova.source'), t('anova.df'), t('anova.ss'), t('anova.ms'), 'F', 'F 5%', 'F 1%'].join('\t')];
+    const lines = [e.title, `${designName(e, true)}; ${p.name}${p.unit ? ` (${p.unit})` : ''}`];
+    if (r.normality) lines.push(`${t('check.normality')}: ${t('check.wp', { w: f.num(r.normality.w, 3), p: f.num(r.normality.p, 3) })} (${r.normality.p >= 0.05 ? t('check.normal') : t('check.notNormal')})`);
+    if (r.homogeneity) lines.push(`${t('check.homogeneity')}: ${t('check.fp', { f: f.num(r.homogeneity.f, 3), p: f.num(r.homogeneity.p, 3) })} (${r.homogeneity.p >= 0.05 ? t('check.homogeneous') : t('check.heterogeneous')})`);
+    lines.push('');
+
+    if (s.nonParametric && r.kruskal) {
+      const k = r.kruskal;
+      lines.push(t('kruskal.title'), `${t('kruskal.stat', { h: f.stat(k.h), df: k.df, p: f.num(k.p, 4) })} (${k.sig === 'ns' ? t('anova.ns') : k.sig})`, '',
+        t('kruskal.dunn', { alpha: alphaText(k.alpha) }),
+        [t('posthoc.treatment'), t('kruskal.median'), t('kruskal.rank'), t('posthoc.letters')].join('\t'));
+      for (const g of k.groups) lines.push([g.trt, f.stat(g.median), f.num(g.meanRank, 1), g.letters].join('\t'));
+      lines.push('', t('posthoc.sameLetter'));
+      return lines.join('\n');
+    }
+
+    const isTx = r.transform && r.transform !== 'none';
+    lines.push(t('anova.title'),
+      [t('anova.source'), t('anova.df'), t('anova.ss'), t('anova.ms'), 'F', 'F 5%', 'F 1%'].join('\t'));
     for (const row of r.rows) {
       lines.push([sourceLabel(e, row.source), row.df, f.stat(row.ss), row.ms === null || row.source === 'Total' ? '' : f.stat(row.ms),
         row.f === null ? '' : `${f.stat(row.f)} ${row.sig === 'ns' ? t('anova.ns') : row.sig}`, row.fCrit05 === null ? '' : f.stat(row.fCrit05), row.fCrit01 === null ? '' : f.stat(row.fCrit01)].join('\t'));
     }
     lines.push('', t('anova.cvLine', { cv: f.num(r.cv, 1), mean: f.stat(r.grandMean), unit: p.unit }), '');
-    const ranked = (title, ph) => {
+    const ranked = (ph, origMeans = null) => {
       lines.push(t('posthoc.title', { test: t(`analysis.test.${ph.test}`), alpha: alphaText(s.alpha) }), [t('posthoc.treatment'), t('posthoc.mean'), t('posthoc.letters')].join('\t'));
-      for (const x of ph.ranked) lines.push([x.trt, f.stat(x.mean), x.letters].join('\t'));
+      for (const x of ph.ranked) {
+        const m = origMeans && origMeans[x.trt] !== undefined ? origMeans[x.trt] : x.mean;
+        lines.push([x.trt, f.stat(m), x.letters].join('\t'));
+      }
+      if (isTx) lines.push(t('transform.note', { name: t(`transform.${r.transform}`) }));
       lines.push('');
     };
-    if (r.kind === 'single') ranked('', r.postHoc);
+    if (r.kind === 'single') ranked(r.postHoc, isTx ? r.originalMeans : null);
     else {
-      for (const m of r.main) { lines.push(t('fact.mainTitle', { name: e.factors[m.factor].name })); ranked('', m); }
+      for (const m of r.main) { lines.push(t('fact.mainTitle', { name: e.factors[m.factor].name })); ranked(m); }
       for (const [src, tables] of Object.entries(r.tables)) {
         for (const tb of tables) {
           lines.push(`${src.split('x').join(' × ')}${tb.slice ? ` (${tb.slice.level})` : ''}`, ['', ...tb.cols].join('\t'));
@@ -549,14 +666,29 @@ export function createViews(ctx) {
     const rec = M.samplesRecorded(e, s.sid, s.pid);
     if (rec.recorded < rec.expected) out.push(h('p', { class: 'muted small' }, t('analysis.fewSamples', { missing: rec.expected - rec.recorded, expected: rec.expected })));
 
-    // Data check
+    let r = null;
+    if (st.status === 'ready') {
+      try {
+        r = M.analyze(core, e, s.sid, s.pid, s.test, s.alpha, s.transform);
+      } catch (err) {
+        out.push(h('div', { class: 'card note', role: 'alert' }, t('analysis.error', { msg: err.message })));
+        return h('div', {}, out);
+      }
+    }
+
+    // Data check (live normality + Levene homogeneity on active transform when ready)
     const check = st.check;
-    const n = check.normality;
+    const n = r ? r.normality : check.normality;
+    const hm = r ? r.homogeneity : check.homogeneity;
+    const assumptionFailed = (n && n.p < 0.05) || (hm && hm.p < 0.05);
     const checkCard = h('div', { class: 'card' }, h('h3', {}, t('check.title')),
       n ? h('p', {}, `${t('check.normality')}: `, t('check.wp', { w: f.num(n.w, 3), p: f.num(n.p, 3) }), ' · ',
         h('strong', { class: n.p >= 0.05 ? 'ok' : 'warn' }, n.p >= 0.05 ? t('check.normal') : t('check.notNormal')))
         : h('p', { class: 'muted' }, t('check.noNormality')),
-      n && n.p < 0.05 ? h('p', { class: 'muted small' }, t('check.notNormalHint')) : null,
+      hm ? h('p', {}, `${t('check.homogeneity')}: `, t('check.fp', { f: f.num(hm.f, 3), p: f.num(hm.p, 3) }), ' · ',
+        h('strong', { class: hm.p >= 0.05 ? 'ok' : 'warn' }, hm.p >= 0.05 ? t('check.homogeneous') : t('check.heterogeneous')))
+        : null,
+      assumptionFailed ? h('p', { class: 'muted small' }, t('check.notNormalHint')) : null,
       check.outliers.length ? h('div', {}, h('h4', {}, t('check.outliers')),
         h('ul', { class: 'outliers' }, check.outliers.map((id) => {
           const pt = check.points.find((x) => x.id === id);
@@ -571,17 +703,40 @@ export function createViews(ctx) {
     out.push(checkCard);
     if (st.status === 'review') { out.push(h('div', { class: 'card note', role: 'status' }, t('check.review'))); return h('div', {}, out); }
 
-    let r;
-    try {
-      r = M.analyze(core, e, s.sid, s.pid, s.test, s.alpha);
-    } catch (err) {
-      out.push(h('div', { class: 'card note', role: 'alert' }, t('analysis.error', { msg: err.message })));
-      return h('div', {}, out);
+    // Transformations & non-parametric switcher
+    const availTx = r.availableTransforms ?? ['none'];
+    const showSuggest = assumptionFailed && r.suggestedTransform && r.transform === 'none' && !s.nonParametric;
+    out.push(h('div', { class: 'transform-bar' },
+      h('span', { class: 'field-label' }, t('transform.label')),
+      showSuggest ? h('p', { class: 'muted small transform-suggest' }, t('transform.suggest', { name: t(`transform.${r.suggestedTransform}`) })) : null,
+      h('div', { class: 'chips', role: 'group', 'aria-label': t('transform.label') },
+        availTx.map((code) => h('button', {
+          type: 'button',
+          class: `chip${showSuggest && r.suggestedTransform === code ? ' suggested' : ''}`,
+          'aria-pressed': !s.nonParametric && r.transform === code,
+          onclick: () => { s.transform = code; s.nonParametric = false; ctx.rerender(); },
+        }, t(`transform.${code}`))),
+        r.kruskal ? h('button', {
+          type: 'button', class: 'chip', 'aria-pressed': !!s.nonParametric,
+          onclick: () => { s.nonParametric = true; ctx.rerender(); },
+        }, t('kruskal.chip')) : null)));
+
+    if (s.nonParametric && r.kruskal) {
+      out.push(kruskalResults(e, r.kruskal, p));
+    } else {
+      out.push(h('h3', {}, t('anova.title')), r.kind === 'single' ? singleResults(e, r, s, p) : factorialResults(e, r, s, p));
     }
-    out.push(h('h3', {}, t('anova.title')), r.kind === 'single' ? singleResults(e, r, s, p) : factorialResults(e, r, s, p),
-      h('div', { class: 'actions' }, h('button', { class: 'btn ghost', type: 'button', onclick: async () => {
-        try { await navigator.clipboard.writeText(resultText(e, r, s, p)); ctx.say(t('result.copied')); } catch { ctx.say(t('result.copyFail'), true); }
-      } }, t('result.copy'))));
+
+    out.push(h('div', { class: 'actions' }, h('button', { class: 'btn ghost', type: 'button', onclick: async () => {
+      try { await navigator.clipboard.writeText(resultText(e, r, s, p)); ctx.say(t('result.copied')); } catch { ctx.say(t('result.copyFail'), true); }
+    } }, t('result.copy'))));
+
+    try {
+      const ts = M.timeSeries(core, e, s.pid);
+      const chart = growthChart(ts, p, s);
+      if (chart) out.push(chart);
+    } catch { /* single-session or non-DAP experiment */ }
+
     return h('div', {}, out);
   }
 
