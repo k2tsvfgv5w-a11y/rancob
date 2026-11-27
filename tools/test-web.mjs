@@ -223,49 +223,8 @@ test('i18n: every t() key used by the UI exists', () => {
     for (const m of src.matchAll(/key:\s*'(err\.[\w.]+)'|bad\('(err\.[\w.]+)'/g)) used.add(m[1] ?? m[2]);
   }
   const dynamic = ['design.crd', 'design.rcbd', 'design.crd.full', 'design.rcbd.full', 'analysis.test.dmrt', 'analysis.test.tukey', 'analysis.test.lsd',
-    'anova.src.Block', 'anova.src.Treatment', 'anova.src.Error', 'anova.src.Total',
-    'transform.none', 'transform.sqrt', 'transform.sqrt_half', 'transform.log10_1', 'transform.arcsin_pct'];
+    'anova.src.Block', 'anova.src.Treatment', 'anova.src.Error', 'anova.src.Total'];
   for (const k of [...used, ...dynamic]) assert.ok(k in STRINGS.id, `missing key ${k}`);
-});
-
-test('analysis exposes Levene homogeneity, transforms, Kruskal-Wallis, and multi-session timeSeries', () => {
-  const e = M.makeExperiment(core, baseForm({
-    treatments: ['P0', 'P1', 'P2', 'P3'].map((c) => ({ code: c, description: '' })),
-    reps: 4,
-    dapList: '14, 28',
-    parameters: [{ name: 'Intensitas', unit: '%', samples: 1 }],
-  }), { seed: 21 });
-  const [s1, s2] = e.sessions;
-  const pid = e.parameters[0].id;
-  // Session 1 (14 HST): percent values with 0s across blocks, no extreme outlier
-  const v1 = [0, 1, 2, 1, 10, 12, 11, 13, 32, 35, 34, 37, 68, 70, 72, 74];
-  const v2 = [2, 3, 4, 3, 16, 18, 17, 19, 42, 45, 44, 47, 76, 78, 80, 82];
-  const byTrtCount = [0, 0, 0, 0];
-  for (const p of e.plots) {
-    const idx = p.t * 4 + byTrtCount[p.t]++;
-    M.setSample(e, s1.id, pid, p.n, 0, v1[idx]);
-    M.setSample(e, s2.id, pid, p.n, 0, v2[idx]);
-  }
-  const st = M.inspect(core, e, s1.id, pid);
-  assert.equal(st.status, 'ready');
-  assert.ok(st.check.homogeneity && typeof st.check.homogeneity.p === 'number');
-
-  const raw = M.analyze(core, e, s1.id, pid, 'dmrt', 0.05, 'none');
-  assert.equal(raw.transform, 'none');
-  assert.ok(raw.availableTransforms.includes('arcsin_pct'));
-  assert.equal(raw.suggestedTransform, 'arcsin_pct');
-  assert.ok(raw.kruskal && raw.kruskal.groups.length === 4);
-  assert.equal(raw.kruskal.sig, '**');
-
-  const tx = M.analyze(core, e, s1.id, pid, 'dmrt', 0.05, 'arcsin_pct');
-  assert.equal(tx.transform, 'arcsin_pct');
-  assert.ok(Math.abs(tx.originalMeans.P3 - 71.0) < 1e-6);
-
-  const ts = M.timeSeries(core, e, pid);
-  assert.equal(ts.hasTrend, true);
-  assert.deepEqual(ts.days, [14, 28]);
-  assert.equal(ts.series.length, 4);
-  assert.equal(ts.series[0].points.length, 2);
 });
 
 test('layout seeds are diverse and in the app range (agri_core newSeed is clock based: only 100 values under dart2js)', () => {

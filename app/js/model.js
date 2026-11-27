@@ -252,24 +252,10 @@ export function inspect(core, e, sid, pid) {
   return { ...base, check, unresolved, status: unresolved.length ? 'review' : 'ready' };
 }
 
-export function analyze(core, e, sid, pid, test, alpha, transform = 'none') {
-  const param = e.parameters.find((x) => x.id === pid);
+export function analyze(core, e, sid, pid, test, alpha) {
   return call(core, 'analyze', {
     rcbd: isRcbd(e), factorial: isFactorial(e), orders: levelOrders(e),
-    data: plotValues(e, sid, pid), test, alpha, transform, unit: param?.unit ?? '',
-  });
-}
-
-export function timeSeries(core, e, pid) {
-  const byDay = {};
-  for (const s of e.sessions) {
-    if (s.dap === null || s.dap === undefined) continue;
-    const vals = plotValues(e, s.id, pid);
-    if (vals.length) byDay[String(s.dap)] = vals;
-  }
-  return call(core, 'timeSeries', {
-    byDay,
-    treatmentOrder: e.treatments.map((t) => t.code),
+    data: plotValues(e, sid, pid), test, alpha,
   });
 }
 
