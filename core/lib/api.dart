@@ -12,7 +12,6 @@ final Map<String, String Function(Map<String, dynamic>)> handlers = {
   'layout': _layout,
   'analyze': _analyze,
   'check': _check,
-  'timeSeries': _timeSeries,
   // No 'newSeed': agri_core's is clock based and dart2js only has millisecond
   // precision, which would give just 100 distinct seeds. The web UI uses crypto.
   // Same rule as the app's plan gate (agri_core/plan.dart).
@@ -122,95 +121,17 @@ String _layout(Map<String, dynamic> a) {
   });
 }
 
-/// {rcbd, factorial, orders?, data, test, alpha, transform?, unit?}
+/// {rcbd, factorial, orders?, data, test, alpha}
 String _analyze(Map<String, dynamic> a) {
-  final raw = _plots(a['data']);
-  if (raw.isEmpty) throw AnovaException('No data.');
+  final data = _plots(a['data']);
+  if (data.isEmpty) throw AnovaException('No data.');
   final rcbd = a['rcbd'] == true;
   final test = _test(a['test']);
   final alpha = (a['alpha'] as num?)?.toDouble() ?? 0.05;
-  final unit = (a['unit'] as String?) ?? '';
-
-  // Original treatment means (for back-labeled display under transformation).
-  final sums = <String, double>{};
-  final counts = <String, int>{};
-  for (final d in raw) {
-    sums[d.treatment] = (sums[d.treatment] ?? 0) + d.value;
-    counts[d.treatment] = (counts[d.treatment] ?? 0) + 1;
-  }
-  final originalMeans = {
-    for (final k in sums.keys) k: _n(sums[k]! / counts[k]!),
-  };
-
-  final avail = availableTransforms(raw);
-  final reqCode = (a['transform'] as String?) ?? 'none';
-  final requested = DataTransform.values.firstWhere(
-    (t) => t.code == reqCode,
-    orElse: () => DataTransform.none,
-  );
-  final active = avail.contains(requested) ? requested : DataTransform.none;
-  final data = transformPlotValues(raw, active);
-  final suggested = suggestTransform(
-    [for (final d in raw) d.value],
-    isPercentUnit: unit.trim() == '%',
-  );
-
-  // Live diagnostics on active (possibly transformed) data.
-  ShapiroWilk? norm;
-  HomogeneityTest? homog;
-  try {
-    final chk = checkData(data, rcbd: rcbd);
-    norm = chk.normality;
-    homog = chk.homogeneity;
-  } on AnovaException {
-    homog = leveneTest(data);
-  }
-
-  // Non-parametric Kruskal-Wallis + Dunn (always on original ranks).
-  Map<String, Object?>? kruskalJson;
-  try {
-    final k = kruskalWallis(raw, alpha: alpha);
-    kruskalJson = {
-      'h': _n(k.h),
-      'df': k.df,
-      'p': _n(k.p),
-      'sig': k.significance,
-      'alpha': k.alpha,
-      'groups': [
-        for (final g in k.groups)
-          {
-            'trt': g.treatment,
-            'n': g.n,
-            'median': _n(g.median),
-            'mean': _n(g.mean),
-            'meanRank': _n(g.meanRank),
-            'letters': g.letters,
-          },
-      ],
-    };
-  } on AnovaException {
-    kruskalJson = null;
-  }
-
-  final extra = <String, Object?>{
-    'transform': active.code,
-    'availableTransforms': [for (final t in avail) t.code],
-    'suggestedTransform': suggested?.code,
-    'originalMeans': originalMeans,
-    'normality': norm == null
-        ? null
-        : {'w': _n(norm.w), 'p': _n(norm.p), 'n': norm.n},
-    'homogeneity': homog == null
-        ? null
-        : {'f': _n(homog.f), 'p': _n(homog.p), 'df1': homog.df1, 'df2': homog.df2},
-    'kruskal': kruskalJson,
-  };
-
   if (a['factorial'] == true) {
-    return jsonEncode({
-      ..._factorial(data, rcbd, test, alpha, a['orders'] as List?),
-      ...extra,
-    });
+    return jsonEncode(
+      _factorial(data, rcbd, test, alpha, a['orders'] as List?),
+    );
   }
   final r = rcbd ? anovaRcbd(data) : anovaCrd(data);
   final ph = test.run(r, alpha: alpha);
@@ -229,7 +150,6 @@ String _analyze(Map<String, dynamic> a) {
         {'trt': m.treatment, 'mean': _n(m.mean), 'n': m.n},
     ],
     'postHoc': _postHoc(ph),
-    ...extra,
   });
 }
 
@@ -321,14 +241,6 @@ String _check(Map<String, dynamic> a) {
     'normality': c.normality == null
         ? null
         : {'w': _n(c.normality!.w), 'p': _n(c.normality!.p), 'n': c.normality!.n},
-    'homogeneity': c.homogeneity == null
-        ? null
-        : {
-            'f': _n(c.homogeneity!.f),
-            'p': _n(c.homogeneity!.p),
-            'df1': c.homogeneity!.df1,
-            'df2': c.homogeneity!.df2,
-          },
     'points': [
       for (final p in c.points)
         {
@@ -343,39 +255,5 @@ String _check(Map<String, dynamic> a) {
         },
     ],
     'outliers': [for (final p in c.outliers) p.value.id],
-  });
-}
-
-/// {byDay: {'14': [...], '28': [...]}, treatmentOrder?: [...]}
-String _timeSeries(Map<String, dynamic> a) {
-  final rawMap = (a['byDay'] as Map).cast<String, dynamic>();
-  final byDay = <int, List<PlotValue>>{
-    for (final e in rawMap.entries) int.parse(e.key): _plots(e.value),
-  };
-  final order = (a['treatmentOrder'] as List?)?.cast<String>();
-  final ts = buildTimeSeries(byDay, treatmentOrder: order);
-  return jsonEncode({
-    'days': ts.days,
-    'hasTrend': ts.hasTrend,
-    'minY': _n(ts.minY),
-    'maxY': _n(ts.maxY),
-    'minYWithSe': _n(ts.minYWithSe),
-    'maxYWithSe': _n(ts.maxYWithSe),
-    'series': [
-      for (final s in ts.series)
-        {
-          'trt': s.treatment,
-          'points': [
-            for (final pt in s.points)
-              {
-                'day': pt.day,
-                'mean': _n(pt.mean),
-                'sd': _n(pt.sd),
-                'se': _n(pt.se),
-                'n': pt.n,
-              },
-          ],
-        },
-    ],
   });
 }
