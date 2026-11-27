@@ -483,11 +483,13 @@ export function createViews(ctx) {
       const first = tables[0];
       parts.push(h('p', { class: 'muted small' }, tables[0].slice ? `${t('fact.perLevel', { name: e.factors[2].name })} ` : '', legend(e.factors[first.rowFactor].name, e.factors[first.colFactor].name)));
     }
+    const isTx = r.transform && r.transform !== 'none';
+    const cvUnit = isTx ? `(${t(`transform.${r.transform}`)})` : p.unit;
     return h('div', {},
       anovaTable(e, r),
       h('p', { class: 'muted small' }, e.factors.map((x) => t('fact.factorLine', { f: x.code, name: x.name })).join(' · ')),
-      h('p', { class: 'muted small' }, t('anova.cvLine', { cv: f.num(r.cv, 1), mean: f.stat(r.grandMean), unit: p.unit })),
-      r.transform && r.transform !== 'none' ? h('p', { class: 'muted small' }, t('transform.note', { name: t(`transform.${r.transform}`) })) : null,
+      h('p', { class: 'muted small' }, t('anova.cvLine', { cv: f.num(r.cv, 1), mean: f.stat(r.grandMean), unit: cvUnit })),
+      isTx ? h('p', { class: 'muted small' }, t('transform.note', { name: t(`transform.${r.transform}`) })) : null,
       h('div', { class: sig.length ? 'card soft strong' : 'card note strong' }, sig.length ? t('fact.interactionSignificant', { list: sig.map(label).join(', ') }) : t('fact.interactionNot')),
       h('div', { class: 'chips', role: 'group', 'aria-label': t('analysis.title') },
         r.interactionSources.map((x) => h('button', { type: 'button', class: 'chip', 'aria-pressed': view === x, onclick: () => { s.view = x; ctx.rerender(); } }, `${label(x)}${sig.includes(x) ? ' *' : ''}`)),
@@ -499,9 +501,10 @@ export function createViews(ctx) {
     const f = fmt();
     const ph = r.postHoc;
     const isTx = r.transform && r.transform !== 'none';
+    const cvUnit = isTx ? `(${t(`transform.${r.transform}`)})` : p.unit;
     return h('div', {},
       anovaTable(e, r),
-      h('p', { class: 'muted small' }, t('anova.cvLine', { cv: f.num(r.cv, 1), mean: f.stat(r.grandMean), unit: p.unit })),
+      h('p', { class: 'muted small' }, t('anova.cvLine', { cv: f.num(r.cv, 1), mean: f.stat(r.grandMean), unit: cvUnit })),
       r.treatment.sig === 'ns' ? h('div', { class: 'card note small' }, t('anova.notSignificant')) : null,
       rankedTable(e, ph, p.unit, (code) => treatmentDesc(e, code), isTx ? r.originalMeans : null),
       isTx ? h('p', { class: 'muted small' }, t('transform.note', { name: t(`transform.${r.transform}`) })) : null,
@@ -527,7 +530,24 @@ export function createViews(ctx) {
           h('td', { class: 'n' }, f.stat(g.median)),
           h('td', { class: 'n' }, f.num(g.meanRank, 1)),
           h('td', { class: 'letters' }, g.letters)))))),
-      h('p', { class: 'muted small' }, t('posthoc.sameLetter')));
+      h('p', { class: 'muted small' }, t('posthoc.sameLetter')),
+      M.isRcbd(e) ? h('p', { class: 'muted small' }, t('kruskal.rcbdNote')) : null);
+  }
+
+  function niceScale(minV, maxV, ticks = 4) {
+    const nonNeg = minV >= 0;
+    const lo0 = nonNeg ? 0 : minV;
+    const hi0 = maxV <= lo0 ? lo0 + 1 : maxV;
+    const rough = (hi0 - lo0) / ticks;
+    const pow = 10 ** Math.floor(Math.log10(rough));
+    const norm = rough / pow;
+    const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10) * pow;
+    const min = nonNeg ? Math.max(0, Math.floor(minV / step) * step) : Math.floor(minV / step) * step;
+    const max = Math.ceil(hi0 / step) * step;
+    const vals = [];
+    for (let v = min; v <= max + step * 0.001; v += step) vals.push(Math.round(v * 1e6) / 1e6);
+    const decimals = step < 1 ? Math.max(1, -Math.floor(Math.log10(step))) : 0;
+    return { min, max, vals, decimals };
   }
 
   function growthChart(ts, p, s) {
@@ -537,20 +557,18 @@ export function createViews(ctx) {
     const plotW = W - padL - padR, plotH = H - padT - padB;
     const rawMin = s.showSe ? ts.minYWithSe : ts.minY;
     const rawMax = s.showSe ? ts.maxYWithSe : ts.maxY;
-    const span = rawMax - rawMin || Math.abs(rawMax) * 0.2 || 1;
-    const yMin = rawMin - span * 0.08;
-    const yMax = rawMax + span * 0.08;
+    const scale = niceScale(ts.minY >= 0 ? Math.max(0, rawMin) : rawMin, rawMax, 4);
+    const yMin = scale.min, yMax = scale.max;
     const dMin = ts.days[0], dMax = ts.days[ts.days.length - 1];
     const dSpan = dMax - dMin || 1;
     const xOf = (d) => padL + ((d - dMin) / dSpan) * plotW;
     const yOf = (v) => padT + plotH - ((v - yMin) / (yMax - yMin)) * plotH;
 
     const grid = [];
-    for (let i = 0; i <= 4; i++) {
-      const val = yMin + (i / 4) * (yMax - yMin);
+    for (const val of scale.vals) {
       const y = yOf(val);
       grid.push(svgEl('line', { class: 'trend-grid', x1: padL, y1: y.toFixed(1), x2: W - padR, y2: y.toFixed(1) }));
-      grid.push(svgEl('text', { class: 'trend-axis', x: padL - 8, y: (y + 4).toFixed(1), 'text-anchor': 'end' }, f.num(val, Math.abs(yMax - yMin) < 10 ? 1 : 0)));
+      grid.push(svgEl('text', { class: 'trend-axis', x: padL - 8, y: (y + 4).toFixed(1), 'text-anchor': 'end' }, f.num(val, scale.decimals)));
     }
     for (const day of ts.days) {
       const x = xOf(day);
@@ -616,13 +634,14 @@ export function createViews(ctx) {
     }
 
     const isTx = r.transform && r.transform !== 'none';
+    const cvUnit = isTx ? `(${t(`transform.${r.transform}`)})` : p.unit;
     lines.push(t('anova.title'),
       [t('anova.source'), t('anova.df'), t('anova.ss'), t('anova.ms'), 'F', 'F 5%', 'F 1%'].join('\t'));
     for (const row of r.rows) {
       lines.push([sourceLabel(e, row.source), row.df, f.stat(row.ss), row.ms === null || row.source === 'Total' ? '' : f.stat(row.ms),
         row.f === null ? '' : `${f.stat(row.f)} ${row.sig === 'ns' ? t('anova.ns') : row.sig}`, row.fCrit05 === null ? '' : f.stat(row.fCrit05), row.fCrit01 === null ? '' : f.stat(row.fCrit01)].join('\t'));
     }
-    lines.push('', t('anova.cvLine', { cv: f.num(r.cv, 1), mean: f.stat(r.grandMean), unit: p.unit }), '');
+    lines.push('', t('anova.cvLine', { cv: f.num(r.cv, 1), mean: f.stat(r.grandMean), unit: cvUnit }), '');
     const ranked = (ph, origMeans = null) => {
       lines.push(t('posthoc.title', { test: t(`analysis.test.${ph.test}`), alpha: alphaText(s.alpha) }), [t('posthoc.treatment'), t('posthoc.mean'), t('posthoc.letters')].join('\t'));
       for (const x of ph.ranked) {
@@ -655,7 +674,7 @@ export function createViews(ctx) {
     const goEntry = h('a', { class: 'btn primary', href: `#/e/${e.id}/entry` }, t('analysis.goEntry'));
     const out = [h('h2', {}, t('analysis.title')), pickers(e, s, { analysis: true }),
       h('div', { class: 'row-2 pickers' },
-        field(t('analysis.test'), h('select', { onchange: (ev) => { s.test = ev.target.value; ctx.rerender(); } }, TESTS.map((id) => h('option', { value: id, selected: s.test === id }, t(`analysis.test.${id}`))))),
+        field(t('analysis.test'), h('select', { disabled: !!s.nonParametric, onchange: (ev) => { s.test = ev.target.value; ctx.rerender(); } }, TESTS.map((id) => h('option', { value: id, selected: s.test === id }, t(`analysis.test.${id}`))))),
         field(t('analysis.alpha'), h('select', { onchange: (ev) => { s.alpha = Number(ev.target.value); ctx.rerender(); } },
           [[0.05, 'analysis.alpha05'], [0.01, 'analysis.alpha01']].map(([v, k]) => h('option', { value: v, selected: s.alpha === v }, t(k))))))];
 
@@ -676,11 +695,15 @@ export function createViews(ctx) {
       }
     }
 
-    // Data check (live normality + Levene homogeneity on active transform when ready)
+    // Data check (live normality + Levene on active transform; raw data in non-parametric mode)
     const check = st.check;
-    const n = r ? r.normality : check.normality;
-    const hm = r ? r.homogeneity : check.homogeneity;
-    const assumptionFailed = (n && n.p < 0.05) || (hm && hm.p < 0.05);
+    const useRawCheck = !r || s.nonParametric;
+    const n = useRawCheck ? check.normality : r.normality;
+    const hm = useRawCheck ? check.homogeneity : r.homogeneity;
+    const normFailed = !!(n && n.p < 0.05);
+    const homogFailed = !!(hm && hm.p < 0.05);
+    const assumptionFailed = normFailed || homogFailed;
+    const failHintKey = normFailed && homogFailed ? 'check.bothFailedHint' : normFailed ? 'check.notNormalHint' : 'check.heteroHint';
     const checkCard = h('div', { class: 'card' }, h('h3', {}, t('check.title')),
       n ? h('p', {}, `${t('check.normality')}: `, t('check.wp', { w: f.num(n.w, 3), p: f.num(n.p, 3) }), ' · ',
         h('strong', { class: n.p >= 0.05 ? 'ok' : 'warn' }, n.p >= 0.05 ? t('check.normal') : t('check.notNormal')))
@@ -688,7 +711,7 @@ export function createViews(ctx) {
       hm ? h('p', {}, `${t('check.homogeneity')}: `, t('check.fp', { f: f.num(hm.f, 3), p: f.num(hm.p, 3) }), ' · ',
         h('strong', { class: hm.p >= 0.05 ? 'ok' : 'warn' }, hm.p >= 0.05 ? t('check.homogeneous') : t('check.heterogeneous')))
         : null,
-      assumptionFailed ? h('p', { class: 'muted small' }, t('check.notNormalHint')) : null,
+      assumptionFailed ? h('p', { class: 'muted small' }, t(failHintKey)) : null,
       check.outliers.length ? h('div', {}, h('h4', {}, t('check.outliers')),
         h('ul', { class: 'outliers' }, check.outliers.map((id) => {
           const pt = check.points.find((x) => x.id === id);
